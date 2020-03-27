@@ -1,0 +1,77 @@
+# ----------------------------------------------------------------------------
+# -- BASH Login Shell Greeting Display ---------------------------------------
+#
+# This file defines a custom greeting message for a Bash Shell interactive
+# login.  It currently displays system stats and information to the user.
+#
+# This file is intended to be "sourced" by .bashrc:
+#
+#    if [ -f /<path>/.bash_greeting ]; then
+#     source /<path>/.bash_greeting
+#    fi
+#
+# ----------------------------------------------------------------------------
+
+
+# -- Define color palette ----------------------------------------------------
+col_red='\033[0;91m'
+col_green='\033[0;92m'
+col_yellow='\033[0;93m'
+col_magenta='\033[0;95m'
+col_cyan='\033[0;96m'
+col_none='\033[0m'
+
+
+# -- Gather system information -----------------------------------------------
+cpu=$(awk -F':' '/model name/{ print $2 }' /proc/cpuinfo | head -n 1 | tr -s " " | sed 's/^ //')
+user=$( echo "$USER" )
+host=$(hostname)
+hdd_size=`df -H |  grep "home" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r '`
+hdd_free=`df -H |  grep "home" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r '`
+total_mem=$( awk '/MemTotal/ { print $2 }' /proc/meminfo )
+avail_mem=$( awk '/MemAvailable/ { print $2 }' /proc/meminfo )
+
+
+# -- Check for null vars -----------------------------------------------------
+if [ -z "$hdd_size" ]; then
+  hdd_size="-----"
+fi
+
+if [ -z "$hdd_free" ]; then
+  hdd_free="-----"
+fi
+
+if [ -z "$total_mem" ]; then
+  total_mem="-----"
+else
+  total_mem=$( echo "${total_mem} / 1024 / 1024" | bc )
+fi
+
+if [ -z "$avail_mem" ]; then
+  # Try memFree as an alternate
+  avail_mem=$( awk '/MemFree/ { print $2 }' /proc/meminfo )
+fi
+
+if [ -z "$avail_mem" ]; then
+  avail_mem="-----"
+else
+  avail_mem=$( echo "${avail_mem} / 1024 / 1024" | bc )
+fi
+
+# -- Display Greeting --------------------------------------------------------
+echo ""
+echo -e "--------------------------------------------------------------------"
+echo -e " ${col_cyan}Date${col_none} :  `date '+%B %d, %Y (%A)'`"
+echo -e " ${col_cyan}Time${col_none} :  `date '+%r'`"
+echo -e " ${col_cyan}Host${col_none} :  ${col_magenta}${user}${col_none} @ ${col_magenta}${host}${col_none}"
+echo -e "  - system    : ${col_yellow}`uname -o` | `uname -r`${col_none}"
+echo -e "  - processor : ${col_yellow}${cpu}${col_none}"
+echo -e "  - ram       : ${col_yellow}${total_mem} GB total ( ${avail_mem} GB free )${col_none}"
+echo -e "  - /home     : ${col_yellow}$hdd_size total ( ${hdd_free} free )${col_none}"
+echo -e "  - uptime    : ${col_yellow}`uptime --pretty`${col_none}"
+echo -e "--------------------------------------------------------------------"
+echo ""
+
+
+# -- End of File  ------------------------------------------------------------
+# ----------------------------------------------------------------------------
