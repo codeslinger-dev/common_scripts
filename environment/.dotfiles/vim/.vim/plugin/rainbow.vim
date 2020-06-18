@@ -4,6 +4,12 @@
 "Author: luochen1990, Francisco Lopes
 "Last Edited: 2013 Sep 12
 
+
+" Disable if verions < 700 or if requested
+if exists('g:rainbow_disable') || v:version < 700
+  finish
+endif
+
 let s:guifgs = exists('g:rainbow_guifgs')? g:rainbow_guifgs : [
             \ '#458588',
             \ '#b16286',

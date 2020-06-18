@@ -137,6 +137,12 @@ function print_shell_colors()
 }
 
 
+# -- Source GIT functions ----------------------------------------------------
+if [ -f ~/.bash_config_files/.bash_functions_git ]; then
+ source ~/.bash_config_files/.bash_functions_git
+fi
+
+
 
 
 # -- End of File  ------------------------------------------------------------

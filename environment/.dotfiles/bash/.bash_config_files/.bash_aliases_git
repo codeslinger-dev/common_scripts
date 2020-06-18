@@ -1,0 +1,155 @@
+# ----------------------------------------------------------------------------
+# -- BASH Aliases (Git) ------------------------------------------------------
+#
+# This file defines the Git command aliases to be used in a Bash session.
+#
+# This file is intended to be "sourced" by .bashrc (or similar):
+#
+#    if [ -f /<path>/.bash_aliases_git ]; then
+#     source /<path>/.bash_aliases_git
+#    fi
+#
+# ----------------------------------------------------------------------------
+
+
+# -- STATUS ------------------------------------------------------------------
+#
+
+# Git:  Status
+alias git-status='_git-status'
+alias         gs='_git-status'
+
+# Git:  Status (short)
+alias git-status-short='_git-status-short'
+alias              gss='_git-status-short'
+
+
+# -- ADD ---------------------------------------------------------------------
+#
+
+# Git:  Add
+alias git-add='_git-add'
+alias      ga='_git-add'
+
+# Git:  Add all (w/ confirmation)
+alias git-add-all='_git-add-all'
+alias         gaa='_git-add-all'
+
+
+# -- COMMIT ------------------------------------------------------------------
+#
+
+# Git:  Commit
+alias git-commit='_git-commit'
+alias         gc='_git-commit'
+
+alias git-commit-message='_git-commit-message'
+alias                gcm='_git-commit-message'
+
+
+# -- BRANCH ------------------------------------------------------------------
+#
+
+# Git:  Branch
+alias git-branch='_git-branch'
+alias         gb='_git-branch'
+
+# Git:  Branch Delete
+alias git-branch-delete='_git-branch-delete'
+alias               gbd='_git-branch-delete'
+
+
+# -- CHECKOUT ----------------------------------------------------------------
+#
+
+# Git:  Checkout existing branch
+alias git-checkout='_git-checkout'
+alias          gco='_git-checkout'
+
+# Git:  Checkout new branch (w/ confirmation)
+alias git-checkout-branch='_git-checkout-branch'
+alias                gcob='_git-checkout-branch'
+
+
+# -- DIFF --------------------------------------------------------------------
+#
+
+# Git:  Diff (working directory vs staged)
+alias git-diff='_git-diff'
+alias       gd='_git-diff'
+
+# Git:  Diff All (working directory vs HEAD)
+alias git-diff-all='_git-diff-all'
+alias          gda='_git-diff-all'
+
+
+# -- LOG ---------------------------------------------------------------------
+#
+
+# Git:  Log
+alias git-log='_git-log'
+alias      gl='_git-log'
+
+# Git:  Log w/ graph
+alias git-log-graph='_git-log-graph'
+alias           glg='_git-log-graph'
+
+# Git:  Log w/ one-line detail
+alias git-log-detailed='_git-log-detailed'
+alias              gld='_git-log-detailed'
+
+
+# -- STASH -------------------------------------------------------------------
+#
+
+# Git:  Stash
+alias git-stash='_git-stash'
+alias       gst='_git-stash'
+
+# Git:  Stash List
+alias git-stash-list='_git-stash-list'
+alias           gstl='_git-stash-list'
+
+# Git:  Save requested stash (aka: push to stash stack)
+alias git-stash-save='_git-stash-save'
+alias           gsts='_git-stash-save'
+
+# Git:  Pop requested stash (aka: pop from  stash stack)
+alias git-stash-pop='_git-stash-pop'
+alias          gstp='_git-stash-pop'
+
+# Git:  Apply requested stash to working directory
+alias git-stash-apply='_git-stash-apply'
+alias            gsta='_git-stash-apply'
+
+# Git:  Drop requested stash (w/ confirmation)
+alias git-stash-drop='_git-stash-drop'
+alias           gstd='_git-stash-drop'
+
+
+# -- PULL --------------------------------------------------------------------
+#
+
+# Git:  Pull
+alias git-pull='_git-pull'
+alias       gp='_git-pull'
+
+# Git:  Pull (w/ rebase)
+alias git-pull-rebase='_git-pull-rebase'
+alias             gpr='_git-pull-rebase'
+
+
+# -- MERGE -------------------------------------------------------------------
+#
+
+# Git:  Merge (no fast-forward)
+alias git-merge='_git-merge'
+alias        gm='_git-merge'
+
+# Git:  Merge (only fast-forward)
+alias git-merge-ff='_git-merge-ff'
+alias         gmff='_git-merge-ff'
+
+
+# -- End of File  ------------------------------------------------------------
+# ----------------------------------------------------------------------------

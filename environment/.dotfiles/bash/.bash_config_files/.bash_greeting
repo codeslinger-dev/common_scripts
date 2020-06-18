@@ -23,13 +23,25 @@ col_none='\033[0m'
 
 
 # -- Gather system information -----------------------------------------------
-cpu=$(awk -F':' '/model name/{ print $2 }' /proc/cpuinfo | head -n 1 | tr -s " " | sed 's/^ //')
+
+if [[ -f /proc/cpuinfo ]]; then
+  cpu=$(awk -F':' '/model name/{ print $2 }' /proc/cpuinfo | head -n 1 | tr -s " " | sed 's/^ //')
+else
+  cpu="-----"
+fi
+
 user=$( echo "$USER" )
 host=$(hostname)
-hdd_size=`df -H |  grep "home" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r '`
-hdd_free=`df -H |  grep "home" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r '`
-total_mem=$( awk '/MemTotal/ { print $2 }' /proc/meminfo )
-avail_mem=$( awk '/MemAvailable/ { print $2 }' /proc/meminfo )
+hdd_size=`df -h |  grep "home" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r '`
+hdd_free=`df -h |  grep "home" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r '`
+
+if [ -f "/proc/meminfo" ]; then
+  total_mem=$( awk '/MemTotal/ { print $2 }' /proc/meminfo )
+  avail_mem=$( awk '/MemAvailable/ { print $2 }' /proc/meminfo )
+else
+  total_mem=""
+  avail_mem=""
+fi
 
 
 # -- Check for null vars -----------------------------------------------------
@@ -49,7 +61,9 @@ fi
 
 if [ -z "$avail_mem" ]; then
   # Try memFree as an alternate
-  avail_mem=$( awk '/MemFree/ { print $2 }' /proc/meminfo )
+  if [[ -f /proc/meminfo ]]; then
+    avail_mem=$( awk '/MemFree/ { print $2 }' /proc/meminfo )
+  fi
 fi
 
 if [ -z "$avail_mem" ]; then
@@ -64,11 +78,11 @@ echo -e "--------------------------------------------------------------------"
 echo -e " ${col_cyan}Date${col_none} :  `date '+%B %d, %Y (%A)'`"
 echo -e " ${col_cyan}Time${col_none} :  `date '+%r'`"
 echo -e " ${col_cyan}Host${col_none} :  ${col_magenta}${user}${col_none} @ ${col_magenta}${host}${col_none}"
-echo -e "  - system    : ${col_yellow}`uname -o` | `uname -r`${col_none}"
+echo -e "  - system    : ${col_yellow}`uname -s` | `uname -r`${col_none}"
 echo -e "  - processor : ${col_yellow}${cpu}${col_none}"
 echo -e "  - ram       : ${col_yellow}${total_mem} GB total ( ${avail_mem} GB free )${col_none}"
 echo -e "  - /home     : ${col_yellow}$hdd_size total ( ${hdd_free} free )${col_none}"
-echo -e "  - uptime    : ${col_yellow}`uptime --pretty`${col_none}"
+echo -e "  - uptime    : ${col_yellow}`uptime`${col_none}"
 echo -e "--------------------------------------------------------------------"
 echo ""
 

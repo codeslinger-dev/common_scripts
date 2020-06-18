@@ -1,0 +1,528 @@
+# ----------------------------------------------------------------------------
+# -- BASH Functions (Git) ----------------------------------------------------
+#
+# This file defines the Git command functions to be used in a Bash session.
+#
+# This file is intended to be "sourced" by .bashrc (or similar):
+#
+#    if [ -f /<path>/.bash_functions_git ]; then
+#     source /<path>/.bash_functions_git
+#    fi
+#
+# ----------------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: confirm
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : This is a general-purpose function to ask Yes/No questions
+#                 in Bash, either with or without a default answer. It keeps
+#                 repeating the question until it gets a valid answer.
+#
+#                 Example 1:   Default to 'Yes' if the user presses enter
+#                              without giving an answer:
+#
+#                              if confirm "Do you want to proceed?" Y; then
+#                                 echo "Yes"
+#                              else
+#                                 echo "No"
+#                              fi
+#
+# ----------------------------------------------------------------------------
+confirm()
+{
+    # Don't pollute external environment
+    local prompt
+    local default
+    local reply
+
+    # Requested "Y" as the default answer
+    if [ "${2:-}" = "Y" ]; then
+        prompt="Y/n"
+        default=Y
+
+    # Requested "N" as the default answer
+    elif [ "${2:-}" = "N" ]; then
+        prompt="y/N"
+        default=N
+
+    # No default answer requested
+    else
+        prompt="y/n"
+        default=
+    fi
+
+    # Continue until a recognized answer is provided
+    while true; do
+
+        # Display the prompt (not using "read -p" as it uses
+        # stderr not stdout)
+        echo -n "$1 [$prompt]: "
+
+        # Read the response (use /dev/tty in case stdin is
+        # redirected from somewhere else)
+        read reply </dev/tty
+
+        # Default?
+        if [ -z "$reply" ]; then
+            reply=$default
+        fi
+
+        # Check if the reply is valid
+        case "$reply" in
+            Y*|y*) return 0 ;;
+            N*|n*) return 1 ;;
+        esac
+
+    done
+
+} # confirm()
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-status
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Show working-area status
+#
+# ----------------------------------------------------------------------------
+_git-status()
+{
+    echo ""
+    echo " Executing: [ git status ]"
+    echo ""
+    git status
+
+} # _git-status
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-status-short
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Show working-area status (short output)
+#
+# ----------------------------------------------------------------------------
+_git-status-short()
+{
+    echo ""
+    echo " Executing: [ git status --short ]"
+    echo ""
+    git status --short
+
+} # _git-status-short
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-add
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Stage provided file(s)
+#
+# ----------------------------------------------------------------------------
+_git-add()
+{
+    echo ""
+    echo " Executing: [ git add ""$@"" ]"
+    echo ""
+    git add "$@"
+
+} # _git-add
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-add-all
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Stage all files (w/ confirmation)
+#
+# ----------------------------------------------------------------------------
+_git-add-all()
+{
+    if confirm "Git: Stage all files?" Y; then
+        echo ""
+        echo "Executing: [ git add . ]"
+        echo ""
+        git add .
+     else
+        echo ""
+        echo " [ cancelled ]"
+    fi
+
+} # _git-add-all
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-commit
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Commit staged files
+#
+# ----------------------------------------------------------------------------
+_git-commit()
+{
+    echo ""
+    echo " Executing: [ git commit ]"
+    echo ""
+    git commit
+
+} # _git-commit
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-commit-message
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Commmit staged files, with the provided message string
+#
+# ----------------------------------------------------------------------------
+_git-commit-message()
+{
+    echo ""
+    echo " Executing: [ git commit --message ""$@"" ]"
+    echo ""
+    git commit --message "$@"
+
+} # _git-commit-message
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-branch
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Create a branch with the provided name
+#
+# ----------------------------------------------------------------------------
+_git-branch()
+{
+    echo ""
+    echo " Executing: [ git branch ""$@"" ]"
+    echo ""
+    git branch "$@"
+
+} # _git-branch
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-branch-delete
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Delete the provided branch (w/ confirmation)
+#
+# ----------------------------------------------------------------------------
+_git-branch-delete()
+{
+    if confirm "Git: Delete branch '$1'?" N; then
+        echo ""
+        echo "Executing: [ git branch --delete  ""$@"" ]"
+        echo ""
+        git branch --delete "$@"
+     else
+        echo ""
+        echo " [ cancelled ]"
+    fi
+
+} # _git-branch-delete
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-checkout
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Checkout an existing branch
+#
+# ----------------------------------------------------------------------------
+_git-checkout()
+{
+    echo ""
+    echo " Executing: [ git checkout ""$@"" ]"
+    echo ""
+    git checkout "$@"
+
+} # _git-checkout
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-checkout-branch
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Checkout a new branch (w/ confirmation)
+#
+# ----------------------------------------------------------------------------
+_git-checkout-branch()
+{
+    if confirm "Git: Checkout new branch '$1'?" Y; then
+        echo ""
+        echo "Executing: [ git checkout -b  ""$@"" ]"
+        echo ""
+        git checkout -b "$@"
+     else
+        echo ""
+        echo " [ cancelled ]"
+    fi
+
+} # _git-checkout-branch
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-diff
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Show unstaged differences
+#
+# ----------------------------------------------------------------------------
+_git-diff()
+{
+    echo ""
+    echo " Executing: [ git diff ]"
+    echo ""
+    git diff
+
+} # _git-diff
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-diff-all
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Show all diffs (unstaged + staged vs HEAD)
+#
+# ----------------------------------------------------------------------------
+_git-diff-all()
+{
+    echo ""
+    echo " Executing: [ git diff HEAD ]"
+    echo ""
+    git diff HEAD
+
+} # _git-diff-all
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-log
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Show the git log
+#
+# ----------------------------------------------------------------------------
+_git-log()
+{
+    echo ""
+    echo " Executing: [ git log ]"
+    echo ""
+    git log
+
+} # _git-log
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-log-graph
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Show the git log (w/ graph)
+#
+# ----------------------------------------------------------------------------
+_git-log-graph()
+{
+    echo ""
+    echo " Executing: [ git log --graph --oneline --decorate --all ]"
+    echo ""
+    git log --graph --oneline --decorate --all
+
+} # _git-log-graph
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-log-detailed
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Show the git log (w/ one-line details)
+#
+# ----------------------------------------------------------------------------
+_git-log-detailed()
+{
+    echo ""
+    echo " Executing: [ git log --pretty=format:\"%h %ad %s\" --date=short --all ]"
+    echo ""
+    git log --pretty=format:"%h %ad %s" --date=short --all
+
+} # _git-log-detailed
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-stash-list
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  Stash the current changes
+#
+# ----------------------------------------------------------------------------
+_git-stash()
+{
+    echo ""
+    echo " Executing: [ git stash ]"
+    echo ""
+    git stash
+
+} # _git-stash
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-stash-list
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  List the saved stashes
+#
+# ----------------------------------------------------------------------------
+_git-stash-list()
+{
+    echo ""
+    echo " Executing: [ git stash list ]"
+    echo ""
+    git stash list
+
+} # _git-stash-list
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-stash-save
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  Save (push) the requested stash to stack
+#
+# ----------------------------------------------------------------------------
+_git-stash-save()
+{
+    echo ""
+    echo " Executing: [ git stash save ""$@"" ]"
+    echo ""
+    git stash save "$@"
+
+} # _git-stash-save
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-stash-pop
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  Pop the requested stash from stack
+#
+# ----------------------------------------------------------------------------
+_git-stash-pop()
+{
+    echo ""
+    echo " Executing: [ git stash pop ""$@"" ]"
+    echo ""
+    git stash pop "$@"
+
+} # _git-stash-pop
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-stash-apply
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  Apply the requested stash to the working directory
+#
+# ----------------------------------------------------------------------------
+_git-stash-apply()
+{
+    echo ""
+    echo " Executing: [ git stash apply ""$@"" ]"
+    echo ""
+    git stash apply "$@"
+
+} # _git-stash-apply
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-stash-drop
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  Drop the requested stash (w/ confirmation)
+#
+# ----------------------------------------------------------------------------
+_git-stash-drop()
+{
+    if confirm "Git: Drop stash '$1'?" N; then
+        echo ""
+        echo "Executing: [ git stash drop ""$@"" ]"
+        echo ""
+        git stash drop "$@"
+     else
+        echo ""
+        echo " [ cancelled ]"
+    fi
+
+} # _git-stash-drop
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-pull
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  Pull (from remote repository)
+#
+# ----------------------------------------------------------------------------
+_git-pull()
+{
+    if confirm "Git: Pull from remote repository?" Y; then
+        echo ""
+        echo "Executing: [ git pull ]"
+        echo ""
+        git pull
+     else
+        echo ""
+        echo " [ cancelled ]"
+    fi
+
+} # _git-pull
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-pull-rebase
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  Pull and rebase (from remote repository)
+#
+# ----------------------------------------------------------------------------
+_git-pull()
+{
+    if confirm "Git: Pull from remote repository?" Y; then
+        echo ""
+        echo "Executing: [ git pull --rebase ]"
+        echo ""
+        git pull --rebase
+     else
+        echo ""
+        echo " [ cancelled ]"
+    fi
+
+} # _git-pull-rebase
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-merge
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  Perform merge, without fast-forward
+#
+# ----------------------------------------------------------------------------
+_git-merge()
+{
+    echo ""
+    echo " Executing: [ git merge --no-ff --progress ]"
+    echo ""
+    git merge --no-ff --progress
+
+} # _git-merge
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-merge-ff
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  Perform merge, only if fast-forward is available
+#
+# ----------------------------------------------------------------------------
+_git-merge-ff()
+{
+    echo ""
+    echo " Executing: [ git merge --ff-only ]"
+    echo ""
+    git merge --ff-only
+
+} # _git-merge-ff
+
+
+
+# -- End of File  ------------------------------------------------------------
+# ----------------------------------------------------------------------------

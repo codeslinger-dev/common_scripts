@@ -60,11 +60,18 @@ alias ff='firefox &> /dev/null &'
 alias chrome='google-chrome &> /dev/null &'
 
 # Search aliases (defined in .bash_functions)
-alias  f='func_f'
-alias fs='func_fs'
+alias   f='func_f'
+alias  fs='func_fs'
+alias fsf='func_fs'
 
 # Gather system hardware specs and dump them to a local HTML file
 alias dump_hw_specs='sudo lshw -html > ./hardware_specs.html; echo "Created file => ./hardware_specs.html"'
+
+
+# -- Source GIT aliases ------------------------------------------------------
+if [ -f ~/.bash_config_files/.bash_aliases_git ]; then
+ source ~/.bash_config_files/.bash_aliases_git
+fi
 
 
 # -- End of File  ------------------------------------------------------------
