@@ -45,19 +45,40 @@ fi
 
 
 # -- Check for null vars -----------------------------------------------------
+
+if [ -z "$cpu" ]; then
+  cpu=$(awk -F':' '/Model/{ print $2 }' /proc/cpuinfo | head -n 1 | tr -s " " | sed 's/^ //')
+fi
+
+if [ -z "$cpu" ]; then
+  cpu="-----"
+fi
+
+
+if [ -z "$hdd_size" ]; then
+  hdd_size=`df -h /home |  grep -v "Size" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r '`
+fi
+
 if [ -z "$hdd_size" ]; then
   hdd_size="-----"
+fi
+
+
+if [ -z "$hdd_free" ]; then
+  hdd_free=`df -h /home |  grep -v "Size" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r '`
 fi
 
 if [ -z "$hdd_free" ]; then
   hdd_free="-----"
 fi
 
+
 if [ -z "$total_mem" ]; then
   total_mem="-----"
 else
   total_mem=$( echo "${total_mem} / 1024 / 1024" | bc )
 fi
+
 
 if [ -z "$avail_mem" ]; then
   # Try memFree as an alternate
@@ -71,6 +92,7 @@ if [ -z "$avail_mem" ]; then
 else
   avail_mem=$( echo "${avail_mem} / 1024 / 1024" | bc )
 fi
+
 
 # -- Display Greeting --------------------------------------------------------
 echo ""
