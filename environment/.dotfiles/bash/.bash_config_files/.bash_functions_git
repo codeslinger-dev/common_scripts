@@ -10,74 +10,77 @@
 #    fi
 #
 # ----------------------------------------------------------------------------
+FILE_SOURCED_FUNCTIONS_GIT=TRUE
+
+
+# -- Fetch this file's directory ---------------------------------------------
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+
+# -- Source Common Functions, if not present ---------------------------------
+if [ -z $FILE_SOURCED_FUNCTIONS_COMMON ]; then
+   if [ -f  ${SCRIPT_DIR}/.bash_functions_common ]; then
+     source ${SCRIPT_DIR}/.bash_functions_common
+   fi
+fi
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: confirm
+#  FUNCTION NAME: _display_git_command
 # ----------------------------------------------------------------------------
 #
-#  DESCRIPTION  : This is a general-purpose function to ask Yes/No questions
-#                 in Bash, either with or without a default answer. It keeps
-#                 repeating the question until it gets a valid answer.
-#
-#                 Example 1:   Default to 'Yes' if the user presses enter
-#                              without giving an answer:
-#
-#                              if confirm "Do you want to proceed?" Y; then
-#                                 echo "Yes"
-#                              else
-#                                 echo "No"
-#                              fi
+#  DESCRIPTION  : Display the provided command
 #
 # ----------------------------------------------------------------------------
-confirm()
+_display_git_command()
 {
-    # Don't pollute external environment
-    local prompt
-    local default
-    local reply
+    printf "\n"
+    printf " Command: [ ${TC_YEL}%s${TC_OFF} ]..\n" "${1}"
+    printf " ---------------------------------------------------------------\n"
 
-    # Requested "Y" as the default answer
-    if [ "${2:-}" = "Y" ]; then
-        prompt="Y/n"
-        default=Y
+} # _display_git_command
 
-    # Requested "N" as the default answer
-    elif [ "${2:-}" = "N" ]; then
-        prompt="y/N"
-        default=N
 
-    # No default answer requested
-    else
-        prompt="y/n"
-        default=
-    fi
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _execute_git_command
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Execute the provided command
+#
+# ----------------------------------------------------------------------------
+_execute_git_command()
+{
+    printf "\n"
 
-    # Continue until a recognized answer is provided
-    while true; do
+    eval "${1}"
 
-        # Display the prompt (not using "read -p" as it uses
-        # stderr not stdout)
-        echo -n "$1 [$prompt]: "
+    printf "\n"
+    printf " ---------------------------------------------------------------\n"
+    printf " Command: [ ${TC_YEL}%s${TC_OFF} ].." "${1}"
+    printf " ${TC_GRN}%s${TC_OFF}\n"  "COMPLETED"
+    printf "\n"
 
-        # Read the response (use /dev/tty in case stdin is
-        # redirected from somewhere else)
-        read reply </dev/tty
+} # _execute_git_command
 
-        # Default?
-        if [ -z "$reply" ]; then
-            reply=$default
-        fi
 
-        # Check if the reply is valid
-        case "$reply" in
-            Y*|y*) return 0 ;;
-            N*|n*) return 1 ;;
-        esac
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _ignore_git_command
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Ignore the provided command
+#
+# ----------------------------------------------------------------------------
+_ignore_git_command()
+{
+    printf "\n"
 
-    done
+    printf "\n"
+    printf " ---------------------------------------------------------------\n"
+    printf " Command: [ ${TC_YEL}%s${TC_OFF} ].." "${1}"
+    printf " ${TC_RED}%s${TC_OFF}\n"  "CANCELLED"
+    printf "\n"
 
-} # confirm()
+} # _ignore_git_command
 
 
 # ----------------------------------------------------------------------------
@@ -89,12 +92,13 @@ confirm()
 # ----------------------------------------------------------------------------
 _git-status()
 {
-    echo ""
-    echo " Executing: [ git status ]"
-    echo ""
-    git status
+    local git_command="git status"
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
 
 } # _git-status
+
 
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: _git-status-short
@@ -105,10 +109,10 @@ _git-status()
 # ----------------------------------------------------------------------------
 _git-status-short()
 {
-    echo ""
-    echo " Executing: [ git status --short ]"
-    echo ""
-    git status --short
+    local git_command="git status --short"
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
 
 } # _git-status-short
 
@@ -122,10 +126,10 @@ _git-status-short()
 # ----------------------------------------------------------------------------
 _git-add()
 {
-    echo ""
-    echo " Executing: [ git add ""$@"" ]"
-    echo ""
-    git add "$@"
+    local git_command="git add \"$@\""
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
 
 } # _git-add
 
@@ -138,17 +142,68 @@ _git-add()
 # ----------------------------------------------------------------------------
 _git-add-all()
 {
-    if confirm "Git: Stage all files?" Y; then
-        echo ""
-        echo "Executing: [ git add . ]"
-        echo ""
-        git add .
+    local git_command="git add ."
+
+    _display_git_command "${git_command}"
+
+    printf "\n"
+    if confirm_choice " Git: Stage all files?" Y; then
+        printf "\n"
+        _execute_git_command "${git_command}"
      else
-        echo ""
-        echo " [ cancelled ]"
+        _ignore_git_command  "${git_command}"
     fi
 
 } # _git-add-all
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-cherry-pick
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Apply a single commit to the current branch
+#
+# ----------------------------------------------------------------------------
+_git-cherry-pick()
+{
+    local git_command="git cherry-pick \"$@\""
+
+    _display_git_command "${git_command}"
+
+    printf "\n"
+    if confirm_choice " Git: Apply the following commit '$@'?" Y; then
+        printf "\n"
+        _execute_git_command "${git_command}"
+     else
+        _ignore_git_command  "${git_command}"
+    fi
+
+} # _git-cherry-pick
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-cherry-pick-append
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Apply a single commit to the current branch, appending
+#                 a line to the commit message ("cherry-picked from ..")
+#
+# ----------------------------------------------------------------------------
+_git-cherry-pick-append()
+{
+    local git_command="git cherry-pick -x \"$@\""
+
+    _display_git_command "${git_command}"
+
+    printf "\n"
+    if confirm_choice " Git: Apply the following commit '$@'?" Y; then
+        printf "\n"
+        _execute_git_command "${git_command}"
+     else
+        _ignore_git_command  "${git_command}"
+    fi
+
+} # _git-cherry-pick-append
 
 
 # ----------------------------------------------------------------------------
@@ -160,12 +215,13 @@ _git-add-all()
 # ----------------------------------------------------------------------------
 _git-commit()
 {
-    echo ""
-    echo " Executing: [ git commit ]"
-    echo ""
-    git commit
+    local git_command="git commit"
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
 
 } # _git-commit
+
 
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: _git-commit-message
@@ -176,10 +232,10 @@ _git-commit()
 # ----------------------------------------------------------------------------
 _git-commit-message()
 {
-    echo ""
-    echo " Executing: [ git commit --message ""$@"" ]"
-    echo ""
-    git commit --message "$@"
+    local git_command="git commit --message \"$@\""
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
 
 } # _git-commit-message
 
@@ -193,12 +249,13 @@ _git-commit-message()
 # ----------------------------------------------------------------------------
 _git-branch()
 {
-    echo ""
-    echo " Executing: [ git branch ""$@"" ]"
-    echo ""
-    git branch "$@"
+    local git_command="git branch \"$@\""
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
 
 } # _git-branch
+
 
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: _git-branch-delete
@@ -209,14 +266,16 @@ _git-branch()
 # ----------------------------------------------------------------------------
 _git-branch-delete()
 {
-    if confirm "Git: Delete branch '$1'?" N; then
-        echo ""
-        echo "Executing: [ git branch --delete  ""$@"" ]"
-        echo ""
-        git branch --delete "$@"
+    local git_command="git branch --delete \"$@\""
+
+    _display_git_command "${git_command}"
+
+    printf "\n"
+    if confirm_choice " Git: Delete branch '$@'?" N; then
+        printf "\n"
+        _execute_git_command "${git_command}"
      else
-        echo ""
-        echo " [ cancelled ]"
+        _ignore_git_command  "${git_command}"
     fi
 
 } # _git-branch-delete
@@ -231,12 +290,13 @@ _git-branch-delete()
 # ----------------------------------------------------------------------------
 _git-checkout()
 {
-    echo ""
-    echo " Executing: [ git checkout ""$@"" ]"
-    echo ""
-    git checkout "$@"
+    local git_command="git checkout \"$@\""
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
 
 } # _git-checkout
+
 
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: _git-checkout-branch
@@ -247,14 +307,16 @@ _git-checkout()
 # ----------------------------------------------------------------------------
 _git-checkout-branch()
 {
-    if confirm "Git: Checkout new branch '$1'?" Y; then
-        echo ""
-        echo "Executing: [ git checkout -b  ""$@"" ]"
-        echo ""
-        git checkout -b "$@"
+    local git_command="git checkout -b \"$@\""
+
+    _display_git_command "${git_command}"
+
+    printf "\n"
+    if confirm_choice " Git: Create and checkout new branch '$@'?" Y; then
+        printf "\n"
+        _execute_git_command "${git_command}"
      else
-        echo ""
-        echo " [ cancelled ]"
+        _ignore_git_command  "${git_command}"
     fi
 
 } # _git-checkout-branch
@@ -269,10 +331,10 @@ _git-checkout-branch()
 # ----------------------------------------------------------------------------
 _git-diff()
 {
-    echo ""
-    echo " Executing: [ git diff ]"
-    echo ""
-    git diff
+    local git_command="git diff"
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
 
 } # _git-diff
 
@@ -286,10 +348,10 @@ _git-diff()
 # ----------------------------------------------------------------------------
 _git-diff-all()
 {
-    echo ""
-    echo " Executing: [ git diff HEAD ]"
-    echo ""
-    git diff HEAD
+    local git_command="git diff HEAD"
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
 
 } # _git-diff-all
 
@@ -303,12 +365,13 @@ _git-diff-all()
 # ----------------------------------------------------------------------------
 _git-log()
 {
-    echo ""
-    echo " Executing: [ git log ]"
-    echo ""
-    git log
+    local git_command="git log"
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
 
 } # _git-log
+
 
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: _git-log-graph
@@ -319,28 +382,63 @@ _git-log()
 # ----------------------------------------------------------------------------
 _git-log-graph()
 {
-    echo ""
-    echo " Executing: [ git log --graph --oneline --decorate --all ]"
-    echo ""
-    git log --graph --oneline --decorate --all
+    local git_command="git log --graph --oneline --decorate --all"
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
 
 } # _git-log-graph
 
+
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git-log-detailed
+#  FUNCTION NAME: _git-log-compact
 # ----------------------------------------------------------------------------
 #
 #  DESCRIPTION  : Show the git log (w/ one-line details)
 #
 # ----------------------------------------------------------------------------
-_git-log-detailed()
+_git-log-compact()
 {
-    echo ""
-    echo " Executing: [ git log --pretty=format:\"%h %ad %s\" --date=short --all ]"
-    echo ""
-    git log --pretty=format:"%h %ad %s" --date=short --all
+    local git_command="git log --pretty=format:\"%h %ad %s\" --date=short --all"
 
-} # _git-log-detailed
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
+
+} # _git-log-compact
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-show
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Show details of the provided commit id
+#
+# ----------------------------------------------------------------------------
+_git-show()
+{
+    local git_command="git show \"$@\""
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
+
+} # _git-show
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-show-summary
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Show a summary of the provided commit id
+#
+# ----------------------------------------------------------------------------
+_git-show-summary()
+{
+    local git_command="git show \"$@\" --stat"
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
+
+} # _git-show-summary
 
 
 # ----------------------------------------------------------------------------
@@ -352,12 +450,13 @@ _git-log-detailed()
 # ----------------------------------------------------------------------------
 _git-stash()
 {
-    echo ""
-    echo " Executing: [ git stash ]"
-    echo ""
-    git stash
+    local git_command="git stash"
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
 
 } # _git-stash
+
 
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: _git-stash-list
@@ -368,10 +467,10 @@ _git-stash()
 # ----------------------------------------------------------------------------
 _git-stash-list()
 {
-    echo ""
-    echo " Executing: [ git stash list ]"
-    echo ""
-    git stash list
+    local git_command="git stash list"
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
 
 } # _git-stash-list
 
@@ -385,12 +484,13 @@ _git-stash-list()
 # ----------------------------------------------------------------------------
 _git-stash-save()
 {
-    echo ""
-    echo " Executing: [ git stash save ""$@"" ]"
-    echo ""
-    git stash save "$@"
+    local git_command="git stash save \"$@\""
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
 
 } # _git-stash-save
+
 
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: _git-stash-pop
@@ -401,10 +501,10 @@ _git-stash-save()
 # ----------------------------------------------------------------------------
 _git-stash-pop()
 {
-    echo ""
-    echo " Executing: [ git stash pop ""$@"" ]"
-    echo ""
-    git stash pop "$@"
+    local git_command="git stash pop \"$@\""
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
 
 } # _git-stash-pop
 
@@ -418,12 +518,13 @@ _git-stash-pop()
 # ----------------------------------------------------------------------------
 _git-stash-apply()
 {
-    echo ""
-    echo " Executing: [ git stash apply ""$@"" ]"
-    echo ""
-    git stash apply "$@"
+    local git_command="git stash apply \"$@\""
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
 
 } # _git-stash-apply
+
 
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: _git-stash-drop
@@ -434,14 +535,16 @@ _git-stash-apply()
 # ----------------------------------------------------------------------------
 _git-stash-drop()
 {
-    if confirm "Git: Drop stash '$1'?" N; then
-        echo ""
-        echo "Executing: [ git stash drop ""$@"" ]"
-        echo ""
-        git stash drop "$@"
+    local git_command="git stash drop \"$@\""
+
+    _display_git_command "${git_command}"
+
+    printf "\n"
+    if confirm_choice " Git: Drop stash '$@'?" N; then
+        printf "\n"
+        _execute_git_command "${git_command}"
      else
-        echo ""
-        echo " [ cancelled ]"
+        _ignore_git_command  "${git_command}"
     fi
 
 } # _git-stash-drop
@@ -456,17 +559,20 @@ _git-stash-drop()
 # ----------------------------------------------------------------------------
 _git-pull()
 {
-    if confirm "Git: Pull from remote repository?" Y; then
-        echo ""
-        echo "Executing: [ git pull ]"
-        echo ""
-        git pull
+    local git_command="git pull"
+
+    _display_git_command "${git_command}"
+
+    printf "\n"
+    if confirm_choice " Git: Pull from remote repository?" Y; then
+        printf "\n"
+        _execute_git_command "${git_command}"
      else
-        echo ""
-        echo " [ cancelled ]"
+        _ignore_git_command  "${git_command}"
     fi
 
 } # _git-pull
+
 
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: _git-pull-rebase
@@ -477,14 +583,16 @@ _git-pull()
 # ----------------------------------------------------------------------------
 _git-pull()
 {
-    if confirm "Git: Pull from remote repository?" Y; then
-        echo ""
-        echo "Executing: [ git pull --rebase ]"
-        echo ""
-        git pull --rebase
-     else
-        echo ""
-        echo " [ cancelled ]"
+    local git_command="git pull --rebase"
+
+    _display_git_command "${git_command}"
+
+    printf "\n"
+    if confirm_choice " Git: Pull from remote repository?" Y; then
+        printf "\n"
+        _execute_git_command "${git_command}"
+    else
+        _ignore_git_command  "${git_command}"
     fi
 
 } # _git-pull-rebase
@@ -499,12 +607,13 @@ _git-pull()
 # ----------------------------------------------------------------------------
 _git-merge()
 {
-    echo ""
-    echo " Executing: [ git merge --no-ff --progress ]"
-    echo ""
-    git merge --no-ff --progress
+    local git_command="git merge --no-ff --progress"
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
 
 } # _git-merge
+
 
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: _git-merge-ff
@@ -515,10 +624,10 @@ _git-merge()
 # ----------------------------------------------------------------------------
 _git-merge-ff()
 {
-    echo ""
-    echo " Executing: [ git merge --ff-only ]"
-    echo ""
-    git merge --ff-only
+    local git_command="git merge --ff-only"
+
+    _display_git_command "${git_command}"
+    _execute_git_command "${git_command}"
 
 } # _git-merge-ff
 

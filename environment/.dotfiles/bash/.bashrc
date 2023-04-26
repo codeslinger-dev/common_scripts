@@ -76,7 +76,9 @@ if [ "$color_prompt" = yes ]; then
 else
     PS1="\n$\u @ \h:\w\$ "
 fi
-unset color_prompt force_color_prompt
+
+unset color_prompt
+unset force_color_prompt
 
 
 # -- If xterm, set the title to 'user @ host: dir' ---------------------------
@@ -91,7 +93,7 @@ esac
 
 # -- Enable programmable completion features ---------------------------------
 if ! shopt -oq posix; then
-  if [ -f /usr/share/bash-completion/bash_completion ]; then
+  if   [ -f /usr/share/bash-completion/bash_completion ]; then
    source /usr/share/bash-completion/bash_completion
   elif [ -f /etc/bash_completion ]; then
    source   /etc/bash_completion

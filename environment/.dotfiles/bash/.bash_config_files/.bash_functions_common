@@ -1,0 +1,289 @@
+# ----------------------------------------------------------------------------
+# -- BASH Functions (Common) -------------------------------------------------
+#
+# This file defines the Common functions to be used in a Bash session.
+#
+# This file is intended to be "sourced" by .bashrc (or similar):
+#
+#    if [ -f /<path>/.bash_functions_common ]; then
+#     source /<path>/.bash_functions_common
+#    fi
+#
+# ----------------------------------------------------------------------------
+FILE_SOURCED_FUNCTIONS_COMMON=TRUE
+
+
+# ----------------------------------------------------------------------------
+#  PUBLIC CONSTANTS:  ANSI Terminal color codes
+# ----------------------------------------------------------------------------
+TC_BLK='\033[0;90m'
+TC_RED='\033[0;91m'
+TC_GRN='\033[0;92m'
+TC_YEL='\033[0;93m'
+TC_BLU='\033[0;94m'
+TC_MAG='\033[0;95m'
+TC_CYN='\033[0;96m'
+TC_WHT='\033[0;97m'
+TC_OFF='\033[0m'
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: confirm_choice
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : This is a general-purpose function to ask Yes/No questions
+#                 in Bash, either with or without a default answer. It keeps
+#                 repeating the question until it gets a valid answer.
+#
+#                 Example 1:   Default to 'Yes' if the user presses enter
+#                              without giving an answer:
+#
+#                              if confirm_choice "Do you want to proceed?" Y; then
+#                                 echo "Yes"
+#                              else
+#                                 echo "No"
+#                              fi
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : $1 = Text string to display as prompt
+#                 $2 = Default answer (Y or N)  [optional]
+# ----------------------------------------------------------------------------
+function confirm_choice()
+{
+    # Don't pollute external environment
+    local question=${1}
+    local choice
+    local default
+    local reply
+
+    # Requested "Y" as the default answer
+    if [ "${2:-}" = "Y" ]; then
+        choice="Y/n"
+        default=Y
+
+    # Requested "N" as the default answer
+    elif [ "${2:-}" = "N" ]; then
+        choice="y/N"
+        default=N
+
+    # No default answer requested
+    else
+        choice="y/n"
+        default=
+    fi
+
+    # Continue until a recognized answer is provided
+    while true; do
+
+        # Display the prompt
+        #  - intentially not using "read -p"
+        #    as it uses stderr not stdout
+        echo -e -n "$question [$choice]: "
+
+        # Read the response
+        #  - use /dev/tty in case stdin is
+        #    redirected from somewhere else
+        read reply </dev/tty
+
+        # Use default?
+        if [ -z "$reply" ]; then
+            reply=$default
+        fi
+
+        # Check if the reply is valid
+        case "$reply" in
+            Y*|y*) return 0 ;;
+            N*|n*) return 1 ;;
+        esac
+
+    done
+
+} # confirm_choice()
+
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: print_rainbow_line
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Prints a dashed line in alternating colors.  User provides
+#                 the line length as the sole paramter.  The default value
+#                 of 60 uses a single print, while custom values incur a
+#                 performance penalty of a print per character
+#
+# ----------------------------------------------------------------------------
+function print_rainbow_line()
+{
+  local color_array=($TC_RED $TC_YEL $TC_GRN $TC_BLU $TC_CYN $TC_MAG)
+  local count_max=60
+  local count=0
+
+  # Check for value provided
+  if [ $# -eq 0 ]; then
+     count_max=60
+  else
+     count_max=$1
+  fi
+
+  # Default value - single printf
+  if [ $count_max -eq 60 ]; then
+
+    local line="$TC_RED-$TC_YEL-$TC_GRN-$TC_BLU-$TC_CYN-$TC_MAG-"
+
+    printf "%b%b%b%b%b%b%b%b%b%b${TC_OFF}\n"                   \
+                      "$line" "$line" "$line" "$line" "$line"  \
+                      "$line" "$line" "$line" "$line" "$line"
+
+  # Otherwise, looping printf
+  else
+
+    # Print a character at a time, cycling colors
+    for n in $(eval echo "{1..$count_max}") ; do
+
+        local col=${color_array[$count]}
+
+        printf "${col}%s" "-"
+
+        count=$(($count + 1))
+        count=$(expr $count % 6)
+
+    done
+
+    # print newline
+    printf "${TC_OFF}\n"
+
+  fi
+
+} # print_rainbow_line
+
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: print_ansi_colors
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Prints all the ANSI terminal color combinations
+#
+# ----------------------------------------------------------------------------
+function print_ansi_colors()
+{
+    echo ""
+
+    for x in 0 1 4 5 7 8; do
+        for i in `seq 30 37`; do
+            for a in `seq 40 47`; do
+                echo -ne "\e[$x;$i;$a""m\\\e[$x;$i;$a""m\e[0;37;40m "
+            done
+            echo
+        done
+    done
+
+    echo ""
+}
+
+
+
+# Return a color that contrasts with the given color
+# Bash only does integer division, so keep it integral
+function _contrast_color ()
+{
+    local r g b luminance
+    color="$1"
+
+    if (( color < 16 )); then # Initial 16 ANSI colors
+        (( color == 0 )) && printf "15" || printf "0"
+        return
+    fi
+
+    # Greyscale # rgb_R = rgb_G = rgb_B = (number - 232) * 10 + 8
+    if (( color > 231 )); then # Greyscale ramp
+        (( color < 244 )) && printf "15" || printf "0"
+        return
+    fi
+
+    # All other colors:
+    # 6x6x6 color cube = 16 + 36*R + 6*G + B  # Where RGB are [0..5]
+    # See http://stackoverflow.com/a/27165165/5353461
+
+    # r=$(( (color-16) / 36 ))
+    g=$(( ((color-16) % 36) / 6 ))
+    # b=$(( (color-16) % 6 ))
+
+    # If luminance is bright, print number in black, white otherwise.
+    # Green contributes 587/1000 to human perceived luminance - ITU R-REC-BT.601
+    (( g > 2)) && printf "0" || printf "15"
+    return
+}
+
+
+# Print a colored block with the number of that color
+function _print_color ()
+{
+    local color="$1"
+    local contrast=$(_contrast_color "$1")
+
+    printf "\e[48;5;%sm" "$color"                # Start block of color
+    printf "\e[38;5;%sm%3d" "$contrast" "$color" # In contrast, print number
+    printf "\e[0m "                              # Reset color
+}
+
+
+# Starting at $1, print a run of $2 colors
+function _print_run ()
+{
+    local i
+    for (( i = "$1"; i < "$1" + "$2" && i < printable_colors; i++ )) do
+        _print_color "$i"
+    done
+    printf "  "
+}
+
+
+# Print blocks of colors
+function _print_blocks()
+{
+    local start="$1" i
+    local end="$2" # inclusive
+    local block_cols="$3"
+    local block_rows="$4"
+    local blocks_per_line="$5"
+    local block_length=$((block_cols * block_rows))
+
+    # Print sets of blocks
+    for (( i = start; i <= end; i += (blocks_per_line-1) * block_length )) do
+        printf "\n" # Space before each set of blocks
+        # For each block row
+        for (( row = 0; row < block_rows; row++ )) do
+            # Print block columns for all blocks on the line
+            for (( block = 0; block < blocks_per_line; block++ )) do
+                _print_run $(( i + (block * block_length) )) "$block_cols"
+            done
+            (( i += block_cols )) # Prepare to print the next row
+            printf "\n"
+        done
+    done
+}
+
+#
+# Print 256 colors and values
+function print_shell_colors()
+{
+  printable_colors=256
+
+  printf "\n"
+  printf "%s \n" "---------------------------------------------------------------------------"
+  printf "%s \n" " Bash's available 256-color palette"
+  printf "%s \n" "---------------------------------------------------------------------------"
+  printf "\n"
+
+ _print_run 0 16               # first 16 colors are spread over the whole spectrum
+  printf "\n"
+ _print_blocks  16 231  6 6 3  # 6x6x6 color cube between 16 and 231 inclusive
+ _print_blocks 232 255 12 2 1  # 24 shades of grey
+
+  printf "\n"
+  printf "%s \n" "---------------------------------------------------------------------------"
+  printf "\n"
+
+}
+
+# -- End of File  ------------------------------------------------------------
+# ----------------------------------------------------------------------------

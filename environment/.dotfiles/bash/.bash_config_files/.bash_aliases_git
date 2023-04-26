@@ -36,6 +36,18 @@ alias git-add-all='_git-add-all'
 alias         gaa='_git-add-all'
 
 
+# -- CHERRY PICK -------------------------------------------------------------
+#
+
+# Git:  Cherry-pick
+alias git-cherry-pick='_git-cherry-pick'
+alias             gcp='_git-cherry-pick'
+
+# Git:  Cherry-pick (w/ commit message append)
+alias git-cherry-pick-append='_git-cherry-pick-append'
+alias                   gcpa='_git-cherry-pick-append'
+
+
 # -- COMMIT ------------------------------------------------------------------
 #
 
@@ -95,8 +107,21 @@ alias git-log-graph='_git-log-graph'
 alias           glg='_git-log-graph'
 
 # Git:  Log w/ one-line detail
-alias git-log-detailed='_git-log-detailed'
-alias              gld='_git-log-detailed'
+alias git-log-compact='_git-log-compact'
+alias             glc='_git-log-compact'
+alias          git-ll='_git-log-compact'
+
+
+# -- SHOW --------------------------------------------------------------------
+#
+
+# Git:  Show (commit details)
+alias git-show='_git-show'
+alias      gsh='_git-show'
+
+# Git:  Show (commit summary)
+alias git-show-summary='_git-show-summary'
+alias             gshs='_git-show-summary'
 
 
 # -- STASH -------------------------------------------------------------------

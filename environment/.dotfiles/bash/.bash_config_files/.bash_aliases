@@ -20,6 +20,7 @@ if [ -x /usr/bin/dircolors ]; then
   alias grep='grep --color=auto'
   alias fgrep='fgrep --color=auto'
   alias egrep='egrep --color=auto'
+  alias diff='diff --color=auto'
 
   export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
@@ -30,6 +31,9 @@ fi
 # values
 alias show_bash_colors='print_shell_colors'
 
+# Move up directories
+alias  ..='cd ..'
+alias ...='cd ../..'
 
 # Some more 'ls' aliases
 #  - groups dot-files together
@@ -55,14 +59,25 @@ alias psme="ps -aef | grep ${USER}"
 # Type "please" to add sudo to your previous command
 alias please='sudo $(fc -ln -1)'
 
-# Launch Web Browser
-alias ff='firefox &> /dev/null &'
+# Launch Web Browsers
+alias   ffox='firefox       &> /dev/null &'
 alias chrome='google-chrome &> /dev/null &'
 
 # Search aliases (defined in .bash_functions)
-alias   f='func_f'
-alias  fs='func_fs'
-alias fsf='func_fs'
+alias   f='func_find'
+alias  fs='func_find_stats'
+
+alias  ff='func_find_follow'
+alias ffs='func_find_follow_stats'
+
+# Enables simple aliases to be sudo'ed.
+#  - ref: http://www.gnu.org/software/bash/manual/bashref.html#Aliases
+alias sudo='sudo ';
+
+# Use colordiff, if available
+if type 'colordiff' &> /dev/null; then
+    alias diff='colordiff'
+fi
 
 # Gather system hardware specs and dump them to a local HTML file
 alias dump_hw_specs='sudo lshw -html > ./hardware_specs.html; echo "Created file => ./hardware_specs.html"'
