@@ -61,15 +61,15 @@ fi
 
 
 # -- Setup git-prompt variables ----------------------------------------------
-if [ -f ${LOCAL_BASH_PATH}/.bash_config_files/.git_prompt ]; then
- source ${LOCAL_BASH_PATH}/.bash_config_files/.git_prompt
+if [ -f  ${LOCAL_BASH_PATH}/.bash_config_files/.git_prompt ]; then
+  source ${LOCAL_BASH_PATH}/.bash_config_files/.git_prompt
 fi
 
 
 # -- Define the Bash prompt --------------------------------------------------
 if [ "$color_prompt" = yes ]; then
-   if [[ -f ${LOCAL_BASH_PATH}/.bash_config_files/.bash_prompt ]]; then
-        source ${LOCAL_BASH_PATH}/.bash_config_files/.bash_prompt
+   if [[ -f  ${LOCAL_BASH_PATH}/.bash_config_files/.bash_prompt ]]; then
+      source ${LOCAL_BASH_PATH}/.bash_config_files/.bash_prompt
    else
       PS1="\n\[\033[01;34m\]\w\[\033[00m\]\n[\d \@] \[\033[01;32m\]\u @ \h\[\033[00m\]:  "
    fi
@@ -83,10 +83,10 @@ unset force_color_prompt
 
 # -- If xterm, set the title to 'user @ host: dir' ---------------------------
 case "$TERM" in
-xterm*|rxvt*)
+  xterm*|rxvt*)
     PS1="\[\e]0;\u @ \h: \w\a\]$PS1"
     ;;
-*)
+  *)
     ;;
 esac
 
@@ -94,9 +94,9 @@ esac
 # -- Enable programmable completion features ---------------------------------
 if ! shopt -oq posix; then
   if   [ -f /usr/share/bash-completion/bash_completion ]; then
-   source /usr/share/bash-completion/bash_completion
+    source  /usr/share/bash-completion/bash_completion
   elif [ -f /etc/bash_completion ]; then
-   source   /etc/bash_completion
+    source  /etc/bash_completion
   fi
 fi
 

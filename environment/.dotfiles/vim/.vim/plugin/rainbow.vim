@@ -1,8 +1,5 @@
 "==============================================================================
 "Script Title: rainbow parentheses improved
-"Script Version: 2.52
-"Author: luochen1990, Francisco Lopes
-"Last Edited: 2013 Sep 12
 
 
 " Disable if verions < 700 or if requested

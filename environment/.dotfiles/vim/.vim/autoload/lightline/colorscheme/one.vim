@@ -1,8 +1,5 @@
 " =============================================================================
 " Filename: autoload/lightline/colorscheme/one.vim
-" Author: Zoltan Dalmadi
-" License: MIT License
-" Last Change: 2019/09/09 22:42:48.
 " =============================================================================
 
 " Common colors

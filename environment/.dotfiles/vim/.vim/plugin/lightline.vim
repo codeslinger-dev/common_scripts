@@ -1,8 +1,5 @@
 " =============================================================================
 " Filename: plugin/lightline.vim
-" Author: itchyny
-" License: MIT License
-" Last Change: 2020/02/03 22:03:24.
 " =============================================================================
 
 if exists('g:loaded_lightline') || v:version < 700

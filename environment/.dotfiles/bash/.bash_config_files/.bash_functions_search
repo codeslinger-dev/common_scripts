@@ -26,6 +26,32 @@ fi
 
 
 # ----------------------------------------------------------------------------
+#  FUNCTION NAME: func_find_undecorated
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Grep for pattern in provided file-list
+#
+# ----------------------------------------------------------------------------
+function func_find_undecorated()
+{
+  grep -F -I -s -r -n --color=always --include="$2" "$1" ./
+}
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: func_find_follow_undecorated
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Grep for pattern in provided file-list (follow symlinks)
+#
+# ----------------------------------------------------------------------------
+function func_find_follow_undecorated()
+{
+  grep -F -I -s -R -n --color=always --include="$2" "$1" ./
+}
+
+
+# ----------------------------------------------------------------------------
 #  FUNCTION NAME: func_find
 # ----------------------------------------------------------------------------
 #
@@ -35,10 +61,10 @@ fi
 #
 #                 Some separator options (UTF-8 encoded unicode):
 #
-#                    Double Angle :  \xC2\xBB
-#                     Right Arrow :  \xE2\x87\xBE
-#                     Thick Arrow :  \xE2\x87\xA8
-#                    Paired Arrow :  \xE2\x87\x89
+#                      Double Angle :  \xC2\xBB
+#                       Right Arrow :  \xE2\x87\xBE
+#                       Thick Arrow :  \xE2\x87\xA8
+#                      Paired Arrow :  \xE2\x87\x89
 #
 # ----------------------------------------------------------------------------
 function func_find()
@@ -60,10 +86,10 @@ function func_find()
 #
 #                 Some separator options (UTF-8 encoded unicode):
 #
-#                    Double Angle :  \xC2\xBB
-#                     Right Arrow :  \xE2\x87\xBE
-#                     Thick Arrow :  \xE2\x87\xA8
-#                    Paired Arrow :  \xE2\x87\x89
+#                      Double Angle :  \xC2\xBB
+#                       Right Arrow :  \xE2\x87\xBE
+#                       Thick Arrow :  \xE2\x87\xA8
+#                      Paired Arrow :  \xE2\x87\x89
 #
 # ----------------------------------------------------------------------------
 function func_find_follow()

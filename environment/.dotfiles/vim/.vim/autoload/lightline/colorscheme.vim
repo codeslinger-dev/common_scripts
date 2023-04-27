@@ -1,8 +1,5 @@
 " =============================================================================
 " Filename: autoload/lightline/colorscheme.vim
-" Author: itchyny
-" License: MIT License
-" Last Change: 2019/09/07 11:20:37.
 " =============================================================================
 
 let s:save_cpo = &cpo

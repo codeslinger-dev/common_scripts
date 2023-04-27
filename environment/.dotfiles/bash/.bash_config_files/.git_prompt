@@ -1,17 +1,20 @@
-# bash/zsh git prompt support
+# ----------------------------------------------------------------------------
+# -- GIT Prompt --------------------------------------------------------------
 #
-# This script allows you to see repository status in your prompt.
+# This script allows you to see repository status in your bash prompt.
 #
 # To enable:
 #
 #    1) Copy this file to somewhere (e.g. ~/.git-prompt.sh).
-#    2) Add the following line to your .bashrc/.zshrc:
+#
+#    2) Add the following line to your .bashrc:
 #        source ~/.git-prompt.sh
+#
 #    3a) Change your PS1 to call __git_ps1 as
 #        command-substitution:
 #        Bash: PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ '
-#        ZSH:  setopt PROMPT_SUBST ; PS1='[%n@%m %c$(__git_ps1 " (%s)")]\$ '
 #        the optional argument will be used as format string.
+#
 #    3b) Alternatively, for a slightly faster prompt, __git_ps1 can
 #        be used for PROMPT_COMMAND in Bash or for precmd() in Zsh
 #        with two parameters, <pre> and <post>, which are strings
@@ -21,9 +24,6 @@
 #          will show username, at-sign, host, colon, cwd, then
 #          various status string, followed by dollar and SP, as
 #          your prompt.
-#        ZSH:  precmd () { __git_ps1 "%n" ":%~$ " "|%s" }
-#          will show username, pipe, then various status string,
-#          followed by colon, cwd, dollar and SP, as your prompt.
 #        Optionally, you can supply a third argument with a printf
 #        format string to finetune the output of the branch status
 #
@@ -91,6 +91,9 @@
 # directory is set up to be ignored by git, then set
 # GIT_PS1_HIDE_IF_PWD_IGNORED to a nonempty value. Override this on the
 # repository level by setting bash.hideIfPwdIgnored to "false".
+#
+# ----------------------------------------------------------------------------
+
 
 # check whether printf supports -v
 __git_printf_supports_v=
@@ -324,7 +327,6 @@ __git_ps1 ()
 	# subjects the value of PS1 to parameter expansion:
 	#
 	#   * bash does unless the promptvars option is disabled
-	#   * zsh does not unless the PROMPT_SUBST option is set
 	#   * POSIX shells always do
 	#
 	# If the shell would expand the contents of PS1 when drawing
@@ -349,8 +351,8 @@ __git_ps1 ()
 	#
 	# Assume that the shell follows the POSIX specification and
 	# expands PS1 unless determined otherwise.  (This is more
-	# likely to be correct if the user has a non-bash, non-zsh
-	# shell and safer than the alternative if the assumption is
+	# likely to be correct if the user has a non-bash shell
+	# and safer than the alternative if the assumption is
 	# incorrect.)
 	#
 	local ps1_expanded=yes

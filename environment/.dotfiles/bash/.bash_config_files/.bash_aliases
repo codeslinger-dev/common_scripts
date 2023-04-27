@@ -16,20 +16,29 @@
 if [ -x /usr/bin/dircolors ]; then
   test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
 
-  alias ls='ls --color=auto'
-  alias grep='grep --color=auto'
+  # Common commands
+  alias    ls='ls --color=auto'
+  alias  grep='grep --color=auto'
   alias fgrep='fgrep --color=auto'
   alias egrep='egrep --color=auto'
-  alias diff='diff --color=auto'
+  alias  diff='diff --color=auto'
 
+  # GCC output:
+  #
+  #       error=01;31  |  error markers         |  Bold Red
+  #     warning=01;35  |  warning markers       |  Bold Magenta
+  #        note=01;36  |  note markers          |  Bold Cyan
+  #       caret=01;32  |  caret line            |  Bold Green
+  #       locus=01     |  location information  |  Bold
+  #       quote=01     |  quoted text           |  Bold
+  #
   export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
 fi
 
 # Alias for function that displays the
-# 256-color palette for Bash, including
-# values
-alias show_bash_colors='print_shell_colors'
+# ANSI-terminal color palette codes
+alias print_terminal_colors='print_ansi_colors'
 
 # Move up directories
 alias  ..='cd ..'
@@ -42,12 +51,12 @@ alias ll='LC_COLLATE=C ls -AlF'
 alias la='LC_COLLATE=C ls -alF'
 
 # Bash shortcuts
-alias s='source ~/.bashrc'
-alias h='history'
+alias  s='source ~/.bashrc'
+alias  h='history'
 alias hs='history | grep'
 
 # GVIM shortcuts
-alias e='gvim'
+alias    e='gvim'
 alias edit='gvim'
 
 # Force 'less' to interpret terminal color codes by default
@@ -66,9 +75,11 @@ alias chrome='google-chrome &> /dev/null &'
 # Search aliases (defined in .bash_functions)
 alias   f='func_find'
 alias  fs='func_find_stats'
+alias  fu='func_find_undecorated'
 
 alias  ff='func_find_follow'
 alias ffs='func_find_follow_stats'
+alias ffu='func_find_follow_undecorated'
 
 # Enables simple aliases to be sudo'ed.
 #  - ref: http://www.gnu.org/software/bash/manual/bashref.html#Aliases
@@ -84,8 +95,8 @@ alias dump_hw_specs='sudo lshw -html > ./hardware_specs.html; echo "Created file
 
 
 # -- Source GIT aliases ------------------------------------------------------
-if [ -f ~/.bash_config_files/.bash_aliases_git ]; then
- source ~/.bash_config_files/.bash_aliases_git
+if [ -f  ~/.bash_config_files/.bash_aliases_git ]; then
+  source ~/.bash_config_files/.bash_aliases_git
 fi
 
 

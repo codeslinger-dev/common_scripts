@@ -19,7 +19,6 @@
 #           2) A function name with parentheses on a single line:
 #                  my_function() { echo "My Function"; }
 #
-#
 #           3) Using the keyword 'function' (parentheses optional):
 #                  function my_function() {
 #                    echo "My Function"

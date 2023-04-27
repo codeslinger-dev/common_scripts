@@ -13,13 +13,17 @@
 # ----------------------------------------------------------------------------
 
 
-# -- Define color palette ----------------------------------------------------
-col_red='\033[0;91m'
-col_green='\033[0;92m'
-col_yellow='\033[0;93m'
-col_magenta='\033[0;95m'
-col_cyan='\033[0;96m'
-col_none='\033[0m'
+# -- Fetch this file's directory ---------------------------------------------
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+
+# -- Source Common Functions, if not present ---------------------------------
+if [ -z $FILE_SOURCED_FUNCTIONS_COMMON ]; then
+   if [ -f  ${SCRIPT_DIR}/.bash_functions_common ]; then
+     source ${SCRIPT_DIR}/.bash_functions_common
+   fi
+fi
+
 
 
 # -- Gather system information -----------------------------------------------
@@ -97,14 +101,14 @@ fi
 # -- Display Greeting --------------------------------------------------------
 echo ""
 echo -e "--------------------------------------------------------------------"
-echo -e " ${col_cyan}Date${col_none} :  `date '+%B %d, %Y (%A)'`"
-echo -e " ${col_cyan}Time${col_none} :  `date '+%r'`"
-echo -e " ${col_cyan}Host${col_none} :  ${col_magenta}${user}${col_none} @ ${col_magenta}${host}${col_none}"
-echo -e "  - system    : ${col_yellow}`uname -s` | `uname -r`${col_none}"
-echo -e "  - processor : ${col_yellow}${cpu}${col_none}"
-echo -e "  - ram       : ${col_yellow}${total_mem} GB total ( ${avail_mem} GB free )${col_none}"
-echo -e "  - /home     : ${col_yellow}$hdd_size total ( ${hdd_free} free )${col_none}"
-echo -e "  - uptime    : ${col_yellow}`uptime`${col_none}"
+echo -e " ${TC_CYN}Date${TC_OFF} :  `date '+%B %d, %Y (%A)'`"
+echo -e " ${TC_CYN}Time${TC_OFF} :  `date '+%r'`"
+echo -e " ${TC_CYN}Host${TC_OFF} :  ${TC_MAG}${user}${TC_OFF} @ ${TC_MAG}${host}${TC_OFF}"
+echo -e "  - system    : ${TC_YEL}`uname -s`${TC_OFF} | ${TC_YEL}`uname -r`${TC_OFF}"
+echo -e "  - processor : ${TC_YEL}${cpu}${TC_OFF}"
+echo -e "  - ram       : ${TC_YEL}${total_mem} GB total${TC_OFF} (${TC_YEL}${avail_mem} GB free${TC_OFF})"
+echo -e "  - /home     : ${TC_YEL}$hdd_size total${TC_OFF} (${TC_YEL}${hdd_free} free${TC_OFF})"
+echo -e "  - uptime    : ${TC_YEL}`uptime -p`${TC_OFF}"
 echo -e "--------------------------------------------------------------------"
 echo ""
 

@@ -5,7 +5,8 @@
 #
 # ----------------------------------------------------------------------------
 
-font() {
+function font()
+{
     local esc="\033"
     local formatted="\[${esc}[0m\]"
     case $# in
@@ -28,7 +29,9 @@ font() {
     echo ${formatted}
 }
 
-set_prompt() {
+
+function set_prompt()
+{
     # Background & Foreground
     local bg="48"
     local fg="38"
@@ -67,27 +70,31 @@ set_prompt() {
 
     local files=$(ls -A | wc -l | tr -d '[:space:]')
 
+    # unsupported on SunOS
     if [[ `uname -s` == "SunOS" ]]; then
       local total_size=""
     else
       local total_size=$(ls -lah | grep -m 1 total | sed 's/total //')
     fi
 
+    # fetch git information
     local git_info=$(__git_ps1)
     if [[ ${git_info} ]]; then
         git_info="$(font ${fg} ${yellow})${git_info}$(font)"
     fi
 
-    PS1="\n[$(font ${fg} ${yellow})${user} @ $(font ${fg} ${yellow})${host}$(font)]"
+    # multi-line prompt with folder & git info
+    PS1="\n[$(font ${fg} ${yellow})${user}$(font) @ $(font ${fg} ${yellow})${host}$(font)]"
     PS1+="  [$(font ${fg} ${cyan})${cwd}$(font) ${files} files, ${total_size}]"
     PS1+="  [$(font ${fg} ${green})${pwd}${git_info}$(font)]"
     PS1+="\n[${date} ${time}] : "
 }
 
-GIT_PS1_SHOWUPSTREAM="auto"     # '<' behind, '>' ahead, '<>' diverged, '=' no difference
-GIT_PS1_SHOWDIRTYSTATE=1        # staged '+', unstaged '*'
-GIT_PS1_SHOWSTASHSTATE=1        # '$' something is stashed
-GIT_PS1_SHOWUNTRACKEDFILES=1    # '%' untracked files
+# Git-prompt controls
+GIT_PS1_SHOWUPSTREAM="auto"    # '<' behind, '>' ahead, '<>' diverged, '=' no difference
+GIT_PS1_SHOWDIRTYSTATE=1       # staged '+', unstaged '*'
+GIT_PS1_SHOWSTASHSTATE=1       # '$' something is stashed
+GIT_PS1_SHOWUNTRACKEDFILES=1   # '%' untracked files
 
 PROMPT_COMMAND=set_prompt
 

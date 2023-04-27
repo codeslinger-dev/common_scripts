@@ -1,10 +1,6 @@
 *lightline.txt*	A light and configurable statusline/tabline for Vim
 
 Version: 0.1
-Author: itchyny (https://github.com/itchyny)
-License: MIT License
-Repository: https://github.com/itchyny/lightline.vim
-Last Change: 2020/02/15 18:44:06.
 
 CONTENTS					*lightline-contents*
 
@@ -1320,9 +1316,6 @@ Problem 17:					*lightline-problem-17*
 	Vim hangs while using this plugin.
 	Want this plugin to be more configurable.
 	This troubleshooting is not helpful.
-
-		Report/Request the issue/feature at
-		https://github.com/itchyny/lightline.vim/issues.
 
 ==============================================================================
 vim:tw=78:sw=4:ts=8:ft=help:norl:noet:

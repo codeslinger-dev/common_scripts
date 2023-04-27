@@ -1,8 +1,5 @@
 " =============================================================================
 " Filename: autoload/lightline/colortable.vim
-" Author: itchyny
-" License: MIT License
-" Last Change: 2015/03/29 06:21:39.
 " =============================================================================
 
 let s:save_cpo = &cpo
