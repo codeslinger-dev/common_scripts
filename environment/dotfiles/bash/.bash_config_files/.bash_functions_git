@@ -32,7 +32,7 @@ fi
 #  DESCRIPTION  : Display the provided command
 #
 # ----------------------------------------------------------------------------
-_display_git_command()
+function _display_git_command()
 {
     printf "\n"
     printf " Command: [ ${TC_YEL}%s${TC_OFF} ]..\n" "${1}"
@@ -48,7 +48,7 @@ _display_git_command()
 #  DESCRIPTION  : Execute the provided command
 #
 # ----------------------------------------------------------------------------
-_execute_git_command()
+function _execute_git_command()
 {
     printf "\n"
 
@@ -70,7 +70,7 @@ _execute_git_command()
 #  DESCRIPTION  : Ignore the provided command
 #
 # ----------------------------------------------------------------------------
-_ignore_git_command()
+function _ignore_git_command()
 {
     printf "\n"
 
@@ -90,7 +90,7 @@ _ignore_git_command()
 #  DESCRIPTION  : Show working-area status
 #
 # ----------------------------------------------------------------------------
-_git-status()
+function _git-status()
 {
     local git_command="git status"
 
@@ -107,7 +107,7 @@ _git-status()
 #  DESCRIPTION  : Show working-area status (short output)
 #
 # ----------------------------------------------------------------------------
-_git-status-short()
+function _git-status-short()
 {
     local git_command="git status --short"
 
@@ -124,7 +124,7 @@ _git-status-short()
 #  DESCRIPTION  : Stage provided file(s)
 #
 # ----------------------------------------------------------------------------
-_git-add()
+function _git-add()
 {
     local git_command="git add \"$@\""
 
@@ -140,9 +140,9 @@ _git-add()
 #  DESCRIPTION  : Stage all files (w/ confirmation)
 #
 # ----------------------------------------------------------------------------
-_git-add-all()
+function _git-add-all()
 {
-    local git_command="git add ."
+    local git_command="git add --all ."
 
     _display_git_command "${git_command}"
 
@@ -164,7 +164,7 @@ _git-add-all()
 #  DESCRIPTION  : Apply a single commit to the current branch
 #
 # ----------------------------------------------------------------------------
-_git-cherry-pick()
+function _git-cherry-pick()
 {
     local git_command="git cherry-pick \"$@\""
 
@@ -189,7 +189,7 @@ _git-cherry-pick()
 #                 a line to the commit message ("cherry-picked from ..")
 #
 # ----------------------------------------------------------------------------
-_git-cherry-pick-append()
+function _git-cherry-pick-append()
 {
     local git_command="git cherry-pick -x \"$@\""
 
@@ -213,7 +213,7 @@ _git-cherry-pick-append()
 #  DESCRIPTION  : Commit staged files
 #
 # ----------------------------------------------------------------------------
-_git-commit()
+function _git-commit()
 {
     local git_command="git commit"
 
@@ -230,14 +230,46 @@ _git-commit()
 #  DESCRIPTION  : Commmit staged files, with the provided message string
 #
 # ----------------------------------------------------------------------------
-_git-commit-message()
+function _git-commit-message()
 {
     local git_command="git commit --message \"$@\""
 
     _display_git_command "${git_command}"
-    _execute_git_command "${git_command}"
+
+    printf "\n"
+    if confirm_choice " Git: Commit with message '$@'?" Y; then
+        printf "\n"
+        _execute_git_command "${git_command}"
+     else
+        _ignore_git_command  "${git_command}"
+    fi
 
 } # _git-commit-message
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-commit-amend-message
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  : Add any staged files to the previous commit, updating
+#                 the commit message with the provided message string
+#
+# ----------------------------------------------------------------------------
+function _git-commit-amend-message()
+{
+    local git_command="git commit --amend --message \"$@\""
+
+    _display_git_command "${git_command}"
+
+    printf "\n"
+    if confirm_choice " Git: Amend previous commit with message '$@'?" Y; then
+        printf "\n"
+        _execute_git_command "${git_command}"
+     else
+        _ignore_git_command  "${git_command}"
+    fi
+
+} # _git-commit-amend-message
 
 
 # ----------------------------------------------------------------------------
@@ -247,7 +279,7 @@ _git-commit-message()
 #  DESCRIPTION  : Create a branch with the provided name
 #
 # ----------------------------------------------------------------------------
-_git-branch()
+function _git-branch()
 {
     local git_command="git branch \"$@\""
 
@@ -264,7 +296,7 @@ _git-branch()
 #  DESCRIPTION  : Delete the provided branch (w/ confirmation)
 #
 # ----------------------------------------------------------------------------
-_git-branch-delete()
+function _git-branch-delete()
 {
     local git_command="git branch --delete \"$@\""
 
@@ -288,7 +320,7 @@ _git-branch-delete()
 #  DESCRIPTION  : Checkout an existing branch
 #
 # ----------------------------------------------------------------------------
-_git-checkout()
+function _git-checkout()
 {
     local git_command="git checkout \"$@\""
 
@@ -305,7 +337,7 @@ _git-checkout()
 #  DESCRIPTION  : Checkout a new branch (w/ confirmation)
 #
 # ----------------------------------------------------------------------------
-_git-checkout-branch()
+function _git-checkout-branch()
 {
     local git_command="git checkout -b \"$@\""
 
@@ -329,7 +361,7 @@ _git-checkout-branch()
 #  DESCRIPTION  : Show unstaged differences
 #
 # ----------------------------------------------------------------------------
-_git-diff()
+function _git-diff()
 {
     local git_command="git diff"
 
@@ -346,7 +378,7 @@ _git-diff()
 #  DESCRIPTION  : Show all diffs (unstaged + staged vs HEAD)
 #
 # ----------------------------------------------------------------------------
-_git-diff-all()
+function _git-diff-all()
 {
     local git_command="git diff HEAD"
 
@@ -363,7 +395,7 @@ _git-diff-all()
 #  DESCRIPTION  : Show the git log
 #
 # ----------------------------------------------------------------------------
-_git-log()
+function _git-log()
 {
     local git_command="git log"
 
@@ -380,7 +412,7 @@ _git-log()
 #  DESCRIPTION  : Show the git log (w/ graph)
 #
 # ----------------------------------------------------------------------------
-_git-log-graph()
+function _git-log-graph()
 {
     local git_command="git log --graph --oneline --decorate --all"
 
@@ -397,7 +429,7 @@ _git-log-graph()
 #  DESCRIPTION  : Show the git log (w/ one-line details)
 #
 # ----------------------------------------------------------------------------
-_git-log-compact()
+function _git-log-compact()
 {
     local git_command="git log --pretty=format:\"%h %ad %s\" --date=short --all"
 
@@ -414,7 +446,7 @@ _git-log-compact()
 #  DESCRIPTION  : Show details of the provided commit id
 #
 # ----------------------------------------------------------------------------
-_git-show()
+function _git-show()
 {
     local git_command="git show \"$@\""
 
@@ -431,7 +463,7 @@ _git-show()
 #  DESCRIPTION  : Show a summary of the provided commit id
 #
 # ----------------------------------------------------------------------------
-_git-show-summary()
+function _git-show-summary()
 {
     local git_command="git show \"$@\" --stat"
 
@@ -448,7 +480,7 @@ _git-show-summary()
 #  DESCRIPTION  Stash the current changes
 #
 # ----------------------------------------------------------------------------
-_git-stash()
+function _git-stash()
 {
     local git_command="git stash"
 
@@ -465,7 +497,7 @@ _git-stash()
 #  DESCRIPTION  List the saved stashes
 #
 # ----------------------------------------------------------------------------
-_git-stash-list()
+function _git-stash-list()
 {
     local git_command="git stash list"
 
@@ -482,7 +514,7 @@ _git-stash-list()
 #  DESCRIPTION  Save (push) the requested stash to stack
 #
 # ----------------------------------------------------------------------------
-_git-stash-save()
+function _git-stash-save()
 {
     local git_command="git stash save \"$@\""
 
@@ -499,7 +531,7 @@ _git-stash-save()
 #  DESCRIPTION  Pop the requested stash from stack
 #
 # ----------------------------------------------------------------------------
-_git-stash-pop()
+function _git-stash-pop()
 {
     local git_command="git stash pop \"$@\""
 
@@ -516,7 +548,7 @@ _git-stash-pop()
 #  DESCRIPTION  Apply the requested stash to the working directory
 #
 # ----------------------------------------------------------------------------
-_git-stash-apply()
+function _git-stash-apply()
 {
     local git_command="git stash apply \"$@\""
 
@@ -533,7 +565,7 @@ _git-stash-apply()
 #  DESCRIPTION  Drop the requested stash (w/ confirmation)
 #
 # ----------------------------------------------------------------------------
-_git-stash-drop()
+function _git-stash-drop()
 {
     local git_command="git stash drop \"$@\""
 
@@ -551,13 +583,85 @@ _git-stash-drop()
 
 
 # ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-push
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  Push (to remote repository)
+#
+# ----------------------------------------------------------------------------
+function _git-push()
+{
+    local git_command="git push"
+
+    _display_git_command "${git_command}"
+
+    printf "\n"
+    if confirm_choice " Git: Push to remote repository?" Y; then
+        printf "\n"
+        _execute_git_command "${git_command}"
+     else
+        _ignore_git_command  "${git_command}"
+    fi
+
+} # _git-push
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-push-branch
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  Push current branch (to remote repository)
+#
+# ----------------------------------------------------------------------------
+function _git-push-branch()
+{
+    local git_command="git push -u origin HEAD"
+
+    _display_git_command "${git_command}"
+
+    printf "\n"
+    if confirm_choice " Git: Push current branch to remote repository?" Y; then
+        printf "\n"
+        _execute_git_command "${git_command}"
+     else
+        _ignore_git_command  "${git_command}"
+    fi
+
+} # _git-push-branch
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: _git-push-branch-by-name
+# ----------------------------------------------------------------------------
+#
+#  DESCRIPTION  Push current branch (to remote repository)
+#
+# ----------------------------------------------------------------------------
+function _git-push-branch-by-name()
+{
+    local git_command="git push -u origin \"$@\""
+
+    _display_git_command "${git_command}"
+
+    printf "\n"
+    if confirm_choice " Git: Push branch '$@' to remote repository?" Y; then
+        printf "\n"
+        _execute_git_command "${git_command}"
+     else
+        _ignore_git_command  "${git_command}"
+    fi
+
+} # _git-push-branch-by-name
+
+
+# ----------------------------------------------------------------------------
 #  FUNCTION NAME: _git-pull
 # ----------------------------------------------------------------------------
 #
 #  DESCRIPTION  Pull (from remote repository)
 #
 # ----------------------------------------------------------------------------
-_git-pull()
+function _git-pull()
 {
     local git_command="git pull"
 
@@ -581,14 +685,14 @@ _git-pull()
 #  DESCRIPTION  Pull and rebase (from remote repository)
 #
 # ----------------------------------------------------------------------------
-_git-pull()
+function _git-pull-rebase()
 {
     local git_command="git pull --rebase"
 
     _display_git_command "${git_command}"
 
     printf "\n"
-    if confirm_choice " Git: Pull from remote repository?" Y; then
+    if confirm_choice " Git: Pull (+rebase) from remote repository?" Y; then
         printf "\n"
         _execute_git_command "${git_command}"
     else
@@ -605,7 +709,7 @@ _git-pull()
 #  DESCRIPTION  Perform merge, without fast-forward
 #
 # ----------------------------------------------------------------------------
-_git-merge()
+function _git-merge()
 {
     local git_command="git merge --no-ff --progress"
 
@@ -622,7 +726,7 @@ _git-merge()
 #  DESCRIPTION  Perform merge, only if fast-forward is available
 #
 # ----------------------------------------------------------------------------
-_git-merge-ff()
+function _git-merge-ff()
 {
     local git_command="git merge --ff-only"
 

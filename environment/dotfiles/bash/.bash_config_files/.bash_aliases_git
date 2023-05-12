@@ -58,6 +58,9 @@ alias         gc='_git-commit'
 alias git-commit-message='_git-commit-message'
 alias                gcm='_git-commit-message'
 
+alias git-commit-amend-message='_git-commit-amend-message'
+alias                     gcam='_git-commit-amend-message'
+
 
 # -- BRANCH ------------------------------------------------------------------
 #
@@ -162,6 +165,23 @@ alias       gp='_git-pull'
 # Git:  Pull (w/ rebase)
 alias git-pull-rebase='_git-pull-rebase'
 alias             gpr='_git-pull-rebase'
+
+
+# -- PUSH --------------------------------------------------------------------
+#
+
+# Git:  Push
+alias git-push='_git-push'
+alias    gpush='_git-push'
+
+# Git:  Push branch (current)
+alias git-push-branch='_git-push-branch'
+alias          gpushb='_git-push-branch'
+
+# Git:  Push branch (by name)
+alias git-push-branch-by-name='_git-push-branch-by-name'
+alias                 gpushbn='_git-push-branch-by-name'
+
 
 
 # -- MERGE -------------------------------------------------------------------

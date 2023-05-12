@@ -34,7 +34,17 @@ fi
 # ----------------------------------------------------------------------------
 function func_find_undecorated()
 {
-  grep -F -I -s -r -n --color=always --include="$2" "$1" ./
+  local file_filter
+
+  # If no file-filter was provided, set default to "*"
+  if [ -z "$2" ] ; then
+    file_filter="*"
+  else
+    file_filter="$2"
+  fi
+
+  # Search
+  grep -F -I -s -r -n --color=always --include="${file_filter}" "$1" ./
 }
 
 
@@ -47,7 +57,17 @@ function func_find_undecorated()
 # ----------------------------------------------------------------------------
 function func_find_follow_undecorated()
 {
-  grep -F -I -s -R -n --color=always --include="$2" "$1" ./
+  local file_filter
+
+  # If no file-filter was provided, set default to "*"
+  if [ -z "$2" ] ; then
+    file_filter="*"
+  else
+    file_filter="$2"
+  fi
+
+  # Search
+  grep -F -I -s -R -n --color=always --include="${file_filter}" "$1" ./
 }
 
 
@@ -69,9 +89,19 @@ function func_find_follow_undecorated()
 # ----------------------------------------------------------------------------
 function func_find()
 {
-  grep -F -I -s -r -n --color=always --include="$2" "$1" ./     \
-       | sed 's/.*/ &/'                                         \
-       | sed 's/:/ +/'                                          \
+  local file_filter
+
+  # If no file-filter was provided, set default to "*"
+  if [ -z "$2" ] ; then
+    file_filter="*"
+  else
+    file_filter="$2"
+  fi
+
+  # Search
+  grep -F -I -s -r -n --color=always --include="${file_filter}" "$1" ./   \
+       | sed 's/.*/ &/'                                                   \
+       | sed 's/:/ +/'                                                    \
        | sed 's/:/ \xC2\xBB /'
 }
 
@@ -94,9 +124,19 @@ function func_find()
 # ----------------------------------------------------------------------------
 function func_find_follow()
 {
-  grep -F -I -s -R -n --color=always --include="$2" "$1" ./     \
-       | sed 's/.*/ &/'                                         \
-       | sed 's/:/ +/'                                          \
+  local file_filter
+
+  # If no file-filter was provided, set default to "*"
+  if [ -z "$2" ] ; then
+    file_filter="*"
+  else
+    file_filter="$2"
+  fi
+
+  # Search
+  grep -F -I -s -R -n --color=always --include="${file_filter}" "$1" ./   \
+       | sed 's/.*/ &/'                                                   \
+       | sed 's/:/ +/'                                                    \
        | sed 's/:/ \xC2\xBB /'
 }
 
@@ -114,18 +154,27 @@ function func_find_stats()
   local time_stop
   local time_elapsed
   local num_matches
+  local file_filter
+
+  # If no file-filter was provided, set default to "*"
+  if [ -z "$2" ] ; then
+    file_filter="*"
+  else
+    file_filter="$2"
+  fi
+
 
   # Show input params
   echo    ""
   echo    "Searching.."
   echo -e " - search string  = \"${TC_YEL}${1}${TC_OFF}\""
-  echo -e " - search files   = \"${TC_YEL}${2}${TC_OFF}\""
+  echo -e " - search files   = \"${TC_YEL}${file_filter}${TC_OFF}\""
   echo    "---------------------------------------------------------------"
   echo    ""
 
   # Perform search
   time_start=$(date +%s.%2N)
-  num_matches=$( func_find "$1" "$2" | tee /dev/stderr | wc -l)
+  num_matches=$( func_find "$1" "${file_filter}" | tee /dev/stderr | wc -l)
   time_stop=$(date +%s.%2N)
   time_elapsed=$( echo "scale=2; ${time_stop} - ${time_start}" | bc -l)
 
@@ -153,18 +202,26 @@ function func_find_follow_stats()
   local time_stop
   local time_elapsed
   local num_matches
+  local file_filter
+
+  # If no file-filter was provided, set default to "*"
+  if [ -z "$2" ] ; then
+    file_filter="*"
+  else
+    file_filter="$2"
+  fi
 
   # Show input params
   echo    ""
   echo    "Searching.."
   echo -e " - search string  = \"${TC_YEL}${1}${TC_OFF}\""
-  echo -e " - search files   = \"${TC_YEL}${2}${TC_OFF}\""
+  echo -e " - search files   = \"${TC_YEL}${file_filter}${TC_OFF}\""
   echo    "---------------------------------------------------------------"
   echo    ""
 
   # Perform search
   time_start=$(date +%s.%2N)
-  num_matches=$( func_find_follow "$1" "$2" | tee /dev/stderr | wc -l)
+  num_matches=$( func_find_follow "$1" "${file_filter}" | tee /dev/stderr | wc -l)
   time_stop=$(date +%s.%2N)
   time_elapsed=$( echo "scale=2; ${time_stop} - ${time_start}" | bc -l)
 

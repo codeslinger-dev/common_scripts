@@ -100,13 +100,20 @@ if ! shopt -oq posix; then
   fi
 fi
 
+
 # -- Add user's executable files to PATH -------------------------------------
-if [ -d $HOME/scripts ]; then
-  PATH="$HOME/scripts:$PATH"
+if [[ -z $PATH_CONTAINS_USER_SCRIPTS ]] ; then
+  if [ -d $HOME/scripts ]; then
+    PATH="$HOME/scripts:$PATH"
+    export PATH_CONTAINS_USER_SCRIPTS=TRUE
+  fi
 fi
 
-if [ -d $HOME/bin ]; then
-  PATH="$HOME/bin:$PATH"
+if [[ -z $PATH_CONTAINS_USER_BIN ]] ; then
+  if [ -d $HOME/bin ]; then
+    PATH="$HOME/bin:$PATH"
+    export PATH_CONTAINS_USER_BIN=TRUE
+  fi
 fi
 
 
