@@ -13,11 +13,10 @@
 "                 updates to reflect the status of the current
 "                 buffer (file) as well as the current MODE
 "
-"  - 'rainbow'    Plugin that color-codes parentheses, braces,
+"  - 'rainbow'    Plugin that color-codes parentheses, brackets,
 "                 and braces.  Modulates the color when these
 "                 items are nested, in order to provides a
 "                 visual aid in matching elements
-
 " ----------------------------------------------------------------------------
 
 
@@ -49,14 +48,14 @@ set lazyredraw                  " -- don't update screen w/ macro and scripts
 
 " -- Setup (Window - in support of specific plugins) -------------------------
 if version >=700
-  set noruler                     " -- plugin:lightline displays a ruler
-  set noshowmode                  " -- plugin:lightline displays the mode
-  set laststatus=2                " -- plugin:lightline & command line
-  let g:rainbow_active = 1        " -- plugin:rainbow color-codes matches braces
+  set noruler                   " -- plugin:lightline displays a ruler
+  set noshowmode                " -- plugin:lightline displays the mode
+  set laststatus=2              " -- plugin:lightline & command line
+  let g:rainbow_active = 1      " -- plugin:rainbow color-codes matches braces
 else
-  set ruler                       " -- displays a ruler
-  set showmode                    " -- displays the mode
-  set laststatus=1                " -- display a command line
+  set ruler                     " -- displays a ruler
+  set showmode                  " -- displays the mode
+  set laststatus=1              " -- display a command line
 endif
 
 
@@ -124,14 +123,13 @@ endif
 set fillchars=fold:-
 
 
-" -- Setup (Comment auto-completion) -----------------------------------------
+" -- Setup (C-style comment auto-completion) ---------------------------------
 autocmd FileType c,cpp  set comments=sl:\/*,mb:**\ ,ex:*\/,:\/\/
 
 
 " -- Setup (C indenting rules) -----------------------------------------------
 autocmd FileType c,cpp  set cindent
-autocmd FileType c,cpp  set cinwords=if,else,white,do,for,switch,case
-
+autocmd FileType c,cpp  set cinwords=if,else,while,do,for,switch,case
 
 
 " -- Setup (Searching) -------------------------------------------------------
@@ -142,12 +140,12 @@ set ignorecase                  " -- ignore case when searching
 
 
 " -- Setup (ensure line wrapping is disabled) --------------------------------
-set nowrap                    " -- don't wrap long lines
-set textwidth=0               " -- really, don't wrap long lines
-set formatoptions-=tc         " -- really, don't wrap long lines
-set formatoptions-=t          " -- really, don't wrap long lines
-set formatoptions-=c          " -- really, don't wrap long lines
-set formatoptions+=l          " -- really, don't wrap long lines
+set nowrap                      " -- don't wrap long lines
+set textwidth=0                 " -- really, don't wrap long lines
+set formatoptions-=tc           " -- really, don't wrap long lines
+set formatoptions-=t            " -- really, don't wrap long lines
+set formatoptions-=c            " -- really, don't wrap long lines
+set formatoptions+=l            " -- really, don't wrap long lines
 
 
 " -- End of File  ------------------------------------------------------------

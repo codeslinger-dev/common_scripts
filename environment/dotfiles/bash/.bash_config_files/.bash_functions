@@ -25,38 +25,31 @@
 #                  }
 #
 # ----------------------------------------------------------------------------
-FILE_SOURCED_FUNCTIONS=TRUE
-
 
 # -- Fetch this file's directory ---------------------------------------------
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 
-
 # -- Source Common functions -------------------------------------------------
-if [ -z $FILE_SOURCED_FUNCTIONS_COMMON ]; then
-   if [ -f  ${SCRIPT_DIR}/.bash_functions_common ]; then
-     source ${SCRIPT_DIR}/.bash_functions_common
-   fi
+if [ -f  ${SCRIPT_DIR}/.bash_functions_common ]; then
+  source ${SCRIPT_DIR}/.bash_functions_common
 fi
 
 
 # -- Source Search functions -------------------------------------------------
-if [ -z $FILE_SOURCED_FUNCTIONS_SEARCH ]; then
-   if [ -f  ${SCRIPT_DIR}/.bash_functions_search ]; then
-     source ${SCRIPT_DIR}/.bash_functions_search
-   fi
+if [ -f  ${SCRIPT_DIR}/.bash_functions_search ]; then
+  source ${SCRIPT_DIR}/.bash_functions_search
 fi
 
 
 # -- Source GIT functions ----------------------------------------------------
-if [ -z $FILE_SOURCED_FUNCTIONS_GIT ]; then
-   if [ -f  ${SCRIPT_DIR}/.bash_functions_git ]; then
-     source ${SCRIPT_DIR}/.bash_functions_git
-   fi
+if [ -f  ${SCRIPT_DIR}/.bash_functions_git ]; then
+  source ${SCRIPT_DIR}/.bash_functions_git
 fi
 
 
+# -- File has been sourced ---------------------------------------------------
+FILE_SOURCED_FUNCTIONS=TRUE
 
 # -- End of File  ------------------------------------------------------------
 # ----------------------------------------------------------------------------

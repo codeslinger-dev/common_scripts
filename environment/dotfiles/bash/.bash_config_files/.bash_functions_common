@@ -10,21 +10,19 @@
 #    fi
 #
 # ----------------------------------------------------------------------------
-FILE_SOURCED_FUNCTIONS_COMMON=TRUE
-
 
 # ----------------------------------------------------------------------------
 #  PUBLIC CONSTANTS:  ANSI Terminal color codes
 # ----------------------------------------------------------------------------
-TC_BLK='\033[0;90m'
-TC_RED='\033[0;91m'
-TC_GRN='\033[0;92m'
-TC_YEL='\033[0;93m'
-TC_BLU='\033[0;94m'
-TC_MAG='\033[0;95m'
-TC_CYN='\033[0;96m'
-TC_WHT='\033[0;97m'
-TC_OFF='\033[0m'
+export TC_BLK='\033[0;90m'
+export TC_RED='\033[0;91m'
+export TC_GRN='\033[0;92m'
+export TC_YEL='\033[0;93m'
+export TC_BLU='\033[0;94m'
+export TC_MAG='\033[0;95m'
+export TC_CYN='\033[0;96m'
+export TC_WHT='\033[0;97m'
+export TC_OFF='\033[0m'
 
 
 # ----------------------------------------------------------------------------
@@ -100,14 +98,40 @@ function confirm_choice()
 
 
 # ----------------------------------------------------------------------------
+#  FUNCTION NAME: xterm_with_color
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Spawn an xterm with the provided color highlights
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : $1 = Color to use for highlights (default: magenta)
+# ----------------------------------------------------------------------------
+function xterm_with_color()
+{
+    local hl_color=${1}
+
+    if [ -z ${hl_color} ] ; then
+      hl_color="magenta"
+    fi
+
+    xterm -ls                 \
+          -sl 9182            \
+          -bd ${hl_color}     \
+          -ms ${hl_color}     \
+          -cr ${hl_color}     \
+          -rw                 \
+          -title "[xterm]:" &
+
+} # xterm_with_color()
+
+
+# ----------------------------------------------------------------------------
 #  FUNCTION NAME: print_rainbow_line
 # ----------------------------------------------------------------------------
-#
 #  DESCRIPTION  : Prints a dashed line in alternating colors.  User provides
-#                 the line length as the sole paramter.  The default value
-#                 of 60 uses a single print, while custom values incur a
-#                 performance penalty of a print per character
-#
+#                 the line length as the paramter.  The default value uses
+#                 a single print, while custom values incur a performance
+#                 penalty of a print per-character
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : $1 = Line length (default: 60)
 # ----------------------------------------------------------------------------
 function print_rainbow_line()
 {
@@ -125,7 +149,7 @@ function print_rainbow_line()
   # Default value - single printf
   if [ $count_max -eq 60 ]; then
 
-    local line="$TC_RED-$TC_YEL-$TC_GRN-$TC_BLU-$TC_CYN-$TC_MAG-"
+    local line="$TC_RED-$TC_YEL-$TC_GRN-$TC_BLU-$TC_MAG-$TC_CYN-"
 
     printf "%b%b%b%b%b%b%b%b%b%b${TC_OFF}\n"                   \
                       "$line" "$line" "$line" "$line" "$line"  \
@@ -151,15 +175,15 @@ function print_rainbow_line()
 
   fi
 
-} # print_rainbow_line
+} # print_rainbow_line()
 
 
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: print_ansi_colors
 # ----------------------------------------------------------------------------
-#
 #  DESCRIPTION  : Prints all the ANSI terminal color combinations
-#
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : na
 # ----------------------------------------------------------------------------
 function print_ansi_colors()
 {
@@ -175,8 +199,12 @@ function print_ansi_colors()
     done
 
     echo ""
-}
 
+} # print_ansi_colors()
+
+
+# -- File has been sourced ---------------------------------------------------
+FILE_SOURCED_FUNCTIONS_COMMON=TRUE
 
 # -- End of File  ------------------------------------------------------------
 # ----------------------------------------------------------------------------

@@ -25,7 +25,6 @@ if [ -z $FILE_SOURCED_FUNCTIONS_COMMON ]; then
 fi
 
 
-
 # -- Gather system information -----------------------------------------------
 
 if [[ -f /proc/cpuinfo ]]; then

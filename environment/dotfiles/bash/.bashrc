@@ -26,7 +26,7 @@ LOCAL_BASH_PATH=~
 # -- History settings --------------------------------------------------------
 shopt -s histappend
 HISTSIZE=2000
-HISTFILESIZE=2000000
+HISTFILESIZE=250000
 HISTCONTROL=ignoreboth
 HISTTIMEFORMAT="[ %F / %T ]  "
 
@@ -91,6 +91,25 @@ case "$TERM" in
 esac
 
 
+# -- Set preferred editor for local and remote sessions ----------------------
+if [[ -n $SSH_CONNECTION ]]; then
+    export EDITOR='vim'
+elif command -v gvim > /dev/null; then
+    export EDITOR='gvim'
+elif command -v vim > /dev/null; then
+    export EDITOR='vim'
+else
+    export EDITOR='vi'
+fi
+
+
+# -- Configure less ----------------------------------------------------------
+#      F: exit if the entire file can be displayed in one screen
+#      R: Show ANSI colors
+#      X: Prevent clearing the screen when exiting
+export LESS="FRX"
+
+
 # -- Enable programmable completion features ---------------------------------
 if ! shopt -oq posix; then
   if   [ -f /usr/share/bash-completion/bash_completion ]; then
@@ -117,27 +136,40 @@ if [[ -z $PATH_CONTAINS_USER_BIN ]] ; then
 fi
 
 
+# -- Merge ~/.Xresources -----------------------------------------------------
+if [ -f $HOME/.Xresources ] ; then
+  xrdb -merge $HOME/.Xresources
+fi
+
+
 # -- Source aliases ----------------------------------------------------------
-if [ -f ${LOCAL_BASH_PATH}/.bash_config_files/.bash_aliases ]; then
- source ${LOCAL_BASH_PATH}/.bash_config_files/.bash_aliases
+if [ -f  ${LOCAL_BASH_PATH}/.bash_config_files/.bash_aliases ]; then
+  source ${LOCAL_BASH_PATH}/.bash_config_files/.bash_aliases
 fi
 
 
 # -- Source functions --------------------------------------------------------
-if [ -f ${LOCAL_BASH_PATH}/.bash_config_files/.bash_functions ]; then
- source ${LOCAL_BASH_PATH}/.bash_config_files/.bash_functions
+if [ -f  ${LOCAL_BASH_PATH}/.bash_config_files/.bash_functions ]; then
+  source ${LOCAL_BASH_PATH}/.bash_config_files/.bash_functions
 fi
 
 
 # -- Source any per-host custom settings -------------------------------------
-if [ -f ${LOCAL_BASH_PATH}/.bash_settings_custom ]; then
- source ${LOCAL_BASH_PATH}/.bash_settings_custom
+if [ -f  ${LOCAL_BASH_PATH}/.bash_settings_custom ]; then
+  source ${LOCAL_BASH_PATH}/.bash_settings_custom
 fi
 
 
+# -- Remove any duplicate path entries ---------------------------------------
+PATH="$(echo "$PATH" | awk 'BEGIN{RS=":";}
+{sub(sprintf("%c$",10),"");if(A[$0]){}else{A[$0]=1;
+printf(((NR==1)?"":":")$0)}}')";
+export PATH
+
+
 # -- Finally, display login greeting -----------------------------------------
-if [ -f ${LOCAL_BASH_PATH}/.bash_config_files/.bash_greeting ]; then
- source ${LOCAL_BASH_PATH}/.bash_config_files/.bash_greeting
+if [ -f  ${LOCAL_BASH_PATH}/.bash_config_files/.bash_greeting ]; then
+  source ${LOCAL_BASH_PATH}/.bash_config_files/.bash_greeting
 fi
 
 

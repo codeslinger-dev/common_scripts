@@ -38,7 +38,7 @@ fi
 
 # Alias for function that displays the
 # ANSI-terminal color palette codes
-alias print_terminal_colors='print_ansi_colors'
+alias print-terminal-colors='print_ansi_colors'
 
 # Move up directories
 alias  ..='cd ..'
@@ -91,7 +91,14 @@ if type 'colordiff' &> /dev/null; then
 fi
 
 # Gather system hardware specs and dump them to a local HTML file
-alias dump_hw_specs='sudo lshw -html > ./hardware_specs.html; echo "Created file => ./hardware_specs.html"'
+alias dump-hw-specs='sudo lshw -html > ./hardware_specs.html; echo "Created file => ./hardware_specs.html"'
+
+# xterm
+alias   x='xterm_with_color "white"'
+alias  x1='xterm_with_color "red"'
+alias  x2='xterm_with_color "blue"'
+alias  x3='xterm_with_color "green"'
+alias  xc='xterm_with_color'
 
 
 # -- Source GIT aliases ------------------------------------------------------

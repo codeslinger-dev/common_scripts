@@ -10,7 +10,6 @@
 #    fi
 #
 # ----------------------------------------------------------------------------
-FILE_SOURCED_FUNCTIONS_SEARCH=TRUE
 
 
 # -- Fetch this file's directory ---------------------------------------------
@@ -28,9 +27,10 @@ fi
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: func_find_undecorated
 # ----------------------------------------------------------------------------
-#
 #  DESCRIPTION  : Grep for pattern in provided file-list
-#
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : $1 = Search string
+#                 $2 = File filter (default is '*')
 # ----------------------------------------------------------------------------
 function func_find_undecorated()
 {
@@ -45,15 +45,17 @@ function func_find_undecorated()
 
   # Search
   grep -F -I -s -r -n --color=always --include="${file_filter}" "$1" ./
-}
+
+} # func_find_undecorated()
 
 
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: func_find_follow_undecorated
 # ----------------------------------------------------------------------------
-#
 #  DESCRIPTION  : Grep for pattern in provided file-list (follow symlinks)
-#
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : $1 = Search string
+#                 $2 = File filter (default is '*')
 # ----------------------------------------------------------------------------
 function func_find_follow_undecorated()
 {
@@ -68,13 +70,13 @@ function func_find_follow_undecorated()
 
   # Search
   grep -F -I -s -R -n --color=always --include="${file_filter}" "$1" ./
-}
+
+} # func_find_follow_undecorated()
 
 
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: func_find
 # ----------------------------------------------------------------------------
-#
 #  DESCRIPTION  : Grep for pattern in provided file-list
 #
 #                 Modifies the result lines to be VIM-friendly
@@ -85,7 +87,9 @@ function func_find_follow_undecorated()
 #                       Right Arrow :  \xE2\x87\xBE
 #                       Thick Arrow :  \xE2\x87\xA8
 #                      Paired Arrow :  \xE2\x87\x89
-#
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : $1 = Search string
+#                 $2 = File filter (default is '*')
 # ----------------------------------------------------------------------------
 function func_find()
 {
@@ -103,24 +107,27 @@ function func_find()
        | sed 's/.*/ &/'                                                   \
        | sed 's/:/ +/'                                                    \
        | sed 's/:/ \xC2\xBB /'
-}
+
+} # func_find()
 
 
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: func_find_follow
 # ----------------------------------------------------------------------------
-#
 #  DESCRIPTION  : Grep for pattern in provided file-list (follow symlinks)
 #
 #                 Modifies the result lines to be VIM-friendly
 #
 #                 Some separator options (UTF-8 encoded unicode):
 #
-#                      Double Angle :  \xC2\xBB
+#                      Double Angle :  \xC2\xBB#
+
 #                       Right Arrow :  \xE2\x87\xBE
 #                       Thick Arrow :  \xE2\x87\xA8
 #                      Paired Arrow :  \xE2\x87\x89
-#
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : $1 = Search string
+#                 $2 = File filter (default is '*')
 # ----------------------------------------------------------------------------
 function func_find_follow()
 {
@@ -138,15 +145,17 @@ function func_find_follow()
        | sed 's/.*/ &/'                                                   \
        | sed 's/:/ +/'                                                    \
        | sed 's/:/ \xC2\xBB /'
-}
+
+} # func_find_follow()
 
 
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: func_find_stats
 # ----------------------------------------------------------------------------
-#
 #  DESCRIPTION  : Grep for pattern in provided file-list, w/ stats
-#
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : $1 = Search string
+#                 $2 = File filter (default is '*')
 # ----------------------------------------------------------------------------
 function func_find_stats()
 {
@@ -186,15 +195,17 @@ function func_find_stats()
   printf  " - elapsed time   = ${TC_YEL}%5.1f${TC_OFF}s\n" ${time_elapsed}
 
   return ${num_matches}
-}
+
+} # func_find_stats()
 
 
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: func_find_follow_stats
 # ----------------------------------------------------------------------------
-#
 #  DESCRIPTION  : Grep for pattern in provided file-list, w/ stats
-#
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : $1 = Search string
+#                 $2 = File filter (default is '*')
 # ----------------------------------------------------------------------------
 function func_find_follow_stats()
 {
@@ -233,9 +244,12 @@ function func_find_follow_stats()
   printf  " - elapsed time   = ${TC_YEL}%5.1f${TC_OFF}s\n" ${time_elapsed}
 
   return ${num_matches}
-}
+
+} # func_find_follow_stats()
 
 
+# -- File has been sourced ---------------------------------------------------
+FILE_SOURCED_FUNCTIONS_SEARCH=TRUE
 
 # -- End of File  ------------------------------------------------------------
 # ----------------------------------------------------------------------------
