@@ -5,6 +5,39 @@
 #
 # ----------------------------------------------------------------------------
 
+
+# -- Fetch this file's directory ---------------------------------------------
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+
+# -- Source Common Functions, if not present ---------------------------------
+if [[ -z $FILE_SOURCED_FUNCTIONS_COMMON ]] ; then
+   if [ -f  ${SCRIPT_DIR}/.bash_functions_common ]; then
+     source ${SCRIPT_DIR}/.bash_functions_common
+   fi
+fi
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: font
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Sets text formatting options for terminal display
+#
+#                 When called with no parameters, resets the formatting
+#                 back to the default
+#
+#                 When called with multiple parameters, the text color
+#                 is always the last supplied
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : Supplying 2 parameters:
+#                   $1 = Foreground/Background
+#                   $2 = Text color
+#
+#                 Supplying 3 parameters:
+#                   $1 = Foreground/Background
+#                   $2 = Control
+#                   $3 = Text color
+# ----------------------------------------------------------------------------
 function font()
 {
     local esc="\033"
@@ -27,20 +60,36 @@ function font()
         ;;
     esac
     echo ${formatted}
-}
+
+} # font()
 
 
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: set_prompt
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Configures the prompt (use to populate PROMPT_COMMAND)
+#
+#                 Invoked after every command, this function is used to
+#                 perform any system checks and use those results to
+#                 populate the PS<N> prompt strings
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : na
+# ----------------------------------------------------------------------------
 function set_prompt()
 {
+    # Save exit status of last command (needs to be first)
+    local last_cmd_exit_status="$?"
+
     # Background & Foreground
     local bg="48"
     local fg="38"
 
-    # Colours
+    # Colors
     local black="16"
     local blue="27"
     local cyan="51"
     local green="46"
+    local magenta="95"
     local orange="202"
     local purple="201"
     local red="196"
@@ -60,38 +109,76 @@ function set_prompt()
     local underline_off="24"
     local underline_on="4"
 
+    # Built-ins
     local cwd="\W"
     local date="\d"
     local host="\h"
     local pwd="\w"
     local shell="\s"
     local time="\@"
+    local time_hms="\D{%I:%M:%S %p}"
     local user="\u"
 
+    # Count number of files in the current directory
     local files=$(ls -A | wc -l | tr -d '[:space:]')
 
-    # unsupported on SunOS
+    # Fetch total size of current directory
+    #  - unsupported on SunOS
     if [[ `uname -s` == "SunOS" ]]; then
       local total_size=""
     else
       local total_size=$(ls -lah | grep -m 1 total | sed 's/total //')
     fi
 
-    # fetch git information
+    # Fetch git information
     local git_info=$(__git_ps1)
     if [[ ${git_info} ]]; then
         git_info="$(font ${fg} ${yellow})${git_info}$(font)"
     fi
 
-    # multi-line prompt with folder & git info
+    # Check exit status of previously-executed command
+    if [[ $last_cmd_exit_status == 0 ]]; then
+        local exit_status_color=${yellow}
+    else
+        local exit_status_color=${red}
+    fi
+
+    # PS0: Displayed after each command, but before any output
+    #       - set to empty string
+    PS0=''
+
+    # PS1: Primary prompt displayed before each command
+    #       - multi-line prompt with folder & git info
     PS1="\n[$(font ${fg} ${yellow})${user}$(font) @ $(font ${fg} ${yellow})${host}$(font)]"
-    PS1+="  [$(font ${fg} ${cyan})${cwd}$(font) ${files} files, ${total_size}]"
+    PS1+="  [$(font ${fg} ${cyan})${cwd}$(font) | ${files} files, ${total_size}]"
     PS1+="  [$(font ${fg} ${green})${pwd}${git_info}$(font)]"
-    PS1+="\n[${date} ${time}] : "
-}
+    PS1+="\n[$(font)${date} ${time}$(font)]"
+    PS1+="$(font ${fg} ${exit_status_color})"
+    PS1+=$' \xC2\xBB '
+    PS1+="$(font)"
+
+#    PS1="\n\[\e(0\]lqq\[\e(B\][$(font ${fg} ${yellow})${user}$(font) @ $(font ${fg} ${yellow})${host}$(font)]"
+#    PS1+="  [$(font ${fg} ${cyan})${cwd}$(font) ${files} files, ${total_size}]"
+#    PS1+="  [$(font ${fg} ${green})${pwd}${git_info}$(font)]"
+#    PS1+="\n\[\e(0\]mq\[\e(B\][$(font ${fg} ${orange})${date} ${time}$(font)]"
+#    PS1+="$(font ${fg} ${exit_status_color})"
+#    PS1+=$' \xC2\xBB '
+#    PS1+="$(font)"
+
+
+    # PS2: Secondary prompt displayed when a command needs more input
+    #       - default to "[date time] >> "
+    PS2="[$(font)${date} ${time}$(font)]"
+    PS2+="$(font ${fg} ${exit_status_color})"
+    PS2+=$' \xC2\xBB '
+    PS2+="$(font)"
+
+} # set_prompt()
+
 
 # Git-prompt controls
-GIT_PS1_SHOWUPSTREAM="auto"    # '<' behind, '>' ahead, '<>' diverged, '=' no difference
+#GIT_PS1_SHOWUPSTREAM="auto"    # '<' behind, '>' ahead, '<>' diverged, '=' no difference
+GIT_PS1_SHOWUPSTREAM="verbose git"  # '<' behind, '>' ahead, '<>' diverged, '=' no difference
 GIT_PS1_SHOWDIRTYSTATE=1       # staged '+', unstaged '*'
 GIT_PS1_SHOWSTASHSTATE=1       # '$' something is stashed
 GIT_PS1_SHOWUNTRACKEDFILES=1   # '%' untracked files

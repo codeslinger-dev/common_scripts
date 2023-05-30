@@ -142,15 +142,15 @@ if [ -f $HOME/.Xresources ] ; then
 fi
 
 
-# -- Source aliases ----------------------------------------------------------
-if [ -f  ${LOCAL_BASH_PATH}/.bash_config_files/.bash_aliases ]; then
-  source ${LOCAL_BASH_PATH}/.bash_config_files/.bash_aliases
-fi
-
-
 # -- Source functions --------------------------------------------------------
 if [ -f  ${LOCAL_BASH_PATH}/.bash_config_files/.bash_functions ]; then
   source ${LOCAL_BASH_PATH}/.bash_config_files/.bash_functions
+fi
+
+
+# -- Source aliases ----------------------------------------------------------
+if [ -f  ${LOCAL_BASH_PATH}/.bash_config_files/.bash_aliases ]; then
+  source ${LOCAL_BASH_PATH}/.bash_config_files/.bash_aliases
 fi
 
 
@@ -171,6 +171,10 @@ export PATH
 if [ -f  ${LOCAL_BASH_PATH}/.bash_config_files/.bash_greeting ]; then
   source ${LOCAL_BASH_PATH}/.bash_config_files/.bash_greeting
 fi
+
+
+# Timestamp (current)
+export TIME_AT_LOGIN=`date '+%F %r'`
 
 
 # -- End of File  ------------------------------------------------------------

@@ -3,7 +3,7 @@
 #
 # This file defines the command functions to be used in a Bash session.
 #
-# This file is intended to be "sourced" by .bashrc:
+# This file is intended to be "sourced" by .bashrc (or equivalent):
 #
 #    if [ -f <path>/.bash_functions ]; then
 #     source <path>/.bash_functions
@@ -23,6 +23,12 @@
 #                  function my_function() {
 #                    echo "My Function"
 #                  }
+#
+#         To view a function's definition, from a bash prompt:
+#
+#           1) declare -f <function_name>
+#
+#           2) type <function_name>
 #
 # ----------------------------------------------------------------------------
 
@@ -53,4 +59,3 @@ FILE_SOURCED_FUNCTIONS=TRUE
 
 # -- End of File  ------------------------------------------------------------
 # ----------------------------------------------------------------------------
-

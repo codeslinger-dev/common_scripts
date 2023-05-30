@@ -25,6 +25,46 @@ if [ -z $FILE_SOURCED_FUNCTIONS_COMMON ]; then
 fi
 
 
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: display_system_uptime
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Display the formatted system uptime
+#                  ex:  1 week, 3 days, 21 hours, 45 minutes
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : na
+# ----------------------------------------------------------------------------
+function display_system_uptime()
+{
+  # Check if the version of 'uptime' supports the "pretty format" option (-p)
+  uptime -p >/dev/null 2>&1
+
+  if [ "$?" -eq 0 ]; then
+
+    # Pretty-format:  Supported
+
+    # Note:  When the system is up for less than '0' minutes, then
+    #       'uptime -p' returns ONLY 'up', so set a default value
+
+    UPTIME_SET_OR_EMPTY=$(uptime -p | awk -F 'up ' '{print $2}')
+    UPTIME=${UPTIME_SET_OR_EMPTY:-'less than a minute'}
+  else
+
+    # Pretty-format:  Unsupported
+
+    # Parse the results and format to:  weeks, days, hours, minutes
+
+    UPTIME=$(uptime | sed -E 's/^[^,]*up *//; s/mins/minutes/; s/hrs?/hours/;
+    s/([[:digit:]]+):0?([[:digit:]]+)/\1 hours, \2 minutes/;
+    s/^1 hours/1 hour/; s/ 1 hours/ 1 hour/;
+    s/min,/minutes,/; s/ 0 minutes,/ less than a minute,/; s/ 1 minutes/ 1 minute/;
+    s/  / /; s/, *[[:digit:]]* users?.*//')
+  fi
+
+  echo $UPTIME
+
+} # display_system_uptime()
+
+
 # -- Gather system information -----------------------------------------------
 
 if [[ -f /proc/cpuinfo ]]; then
@@ -35,6 +75,7 @@ fi
 
 user=$( echo "$USER" )
 host=$(hostname)
+
 hdd_size=`df -h |  grep "home" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r '`
 hdd_free=`df -h |  grep "home" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r '`
 
@@ -49,48 +90,48 @@ fi
 
 # -- Check for null vars -----------------------------------------------------
 
-if [ -z "$cpu" ]; then
+if [[ -z "$cpu" ]]; then
   cpu=$(awk -F':' '/Model/{ print $2 }' /proc/cpuinfo | head -n 1 | tr -s " " | sed 's/^ //')
 fi
 
-if [ -z "$cpu" ]; then
+if [[ -z "$cpu" ]]; then
   cpu="-----"
 fi
 
 
-if [ -z "$hdd_size" ]; then
+if [[ -z "$hdd_size" ]]; then
   hdd_size=`df -h /home |  grep -v "Size" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r '`
 fi
 
-if [ -z "$hdd_size" ]; then
+if [[ -z "$hdd_size" ]]; then
   hdd_size="-----"
 fi
 
 
-if [ -z "$hdd_free" ]; then
+if [[ -z "$hdd_free" ]]; then
   hdd_free=`df -h /home |  grep -v "Size" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r '`
 fi
 
-if [ -z "$hdd_free" ]; then
+if [[ -z "$hdd_free" ]]; then
   hdd_free="-----"
 fi
 
 
-if [ -z "$total_mem" ]; then
+if [[ -z "$total_mem" ]]; then
   total_mem="-----"
 else
   total_mem=$( echo "${total_mem} / 1024 / 1024" | bc )
 fi
 
 
-if [ -z "$avail_mem" ]; then
+if [[ -z "$avail_mem" ]]; then
   # Try memFree as an alternate
   if [[ -f /proc/meminfo ]]; then
     avail_mem=$( awk '/MemFree/ { print $2 }' /proc/meminfo )
   fi
 fi
 
-if [ -z "$avail_mem" ]; then
+if [[ -z "$avail_mem" ]]; then
   avail_mem="-----"
 else
   avail_mem=$( echo "${avail_mem} / 1024 / 1024" | bc )
@@ -107,7 +148,7 @@ echo -e "  - system    : ${TC_YEL}`uname -s`${TC_OFF} | ${TC_YEL}`uname -r`${TC_
 echo -e "  - processor : ${TC_YEL}${cpu}${TC_OFF}"
 echo -e "  - ram       : ${TC_YEL}${total_mem} GB total${TC_OFF} (${TC_YEL}${avail_mem} GB free${TC_OFF})"
 echo -e "  - /home     : ${TC_YEL}$hdd_size total${TC_OFF} (${TC_YEL}${hdd_free} free${TC_OFF})"
-echo -e "  - uptime    : ${TC_YEL}`uptime -p`${TC_OFF}"
+echo -e "  - uptime    : ${TC_YEL}$(display_system_uptime)${TC_OFF}"
 echo -e "--------------------------------------------------------------------"
 echo ""
 

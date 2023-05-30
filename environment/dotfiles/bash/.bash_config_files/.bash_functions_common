@@ -3,7 +3,7 @@
 #
 # This file defines the Common functions to be used in a Bash session.
 #
-# This file is intended to be "sourced" by .bashrc (or similar):
+# This file is intended to be "sourced" by .bashrc (or equivalent):
 #
 #    if [ -f /<path>/.bash_functions_common ]; then
 #     source /<path>/.bash_functions_common
@@ -12,9 +12,11 @@
 # ----------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------
-#  PUBLIC CONSTANTS:  ANSI Terminal color codes
+#  PUBLIC CONSTANTS:  ANSI Terminal color codes (8/16 colors)
 # ----------------------------------------------------------------------------
-export TC_BLK='\033[0;90m'
+export TC_BLK='\033[0;30m'
+export TC_GRY='\033[0;37m'
+export TC_DRK='\033[0;90m'
 export TC_RED='\033[0;91m'
 export TC_GRN='\033[0;92m'
 export TC_YEL='\033[0;93m'
@@ -82,7 +84,7 @@ function confirm_choice()
         read reply </dev/tty
 
         # Use default?
-        if [ -z "$reply" ]; then
+        if [[ -z "$reply" ]] ; then
             reply=$default
         fi
 
@@ -108,7 +110,7 @@ function xterm_with_color()
 {
     local hl_color=${1}
 
-    if [ -z ${hl_color} ] ; then
+    if [[ -z ${hl_color} ]] ; then
       hl_color="magenta"
     fi
 
@@ -127,29 +129,41 @@ function xterm_with_color()
 #  FUNCTION NAME: print_rainbow_line
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Prints a dashed line in alternating colors.  User provides
-#                 the line length as the paramter.  The default value uses
-#                 a single print, while custom values incur a performance
-#                 penalty of a print per-character
+#                 the character and line length as the parameters.  The default
+#                 length uses a single print, while custom values incur a
+#                 performance penalty of a print per-character
+#
+#                 Unicode (UTF-8) characters are supported using
+#                 hexidecimal notation (ex: '\xc2\xbb')
 # ----------------------------------------------------------------------------
-#  PARAMETERS   : $1 = Line length (default: 60)
+#  PARAMETERS   : $1 = Character   (default:  -)
+#               : $2 = Line length (default: 60)
 # ----------------------------------------------------------------------------
 function print_rainbow_line()
 {
   local color_array=($TC_RED $TC_YEL $TC_GRN $TC_BLU $TC_CYN $TC_MAG)
   local count_max=60
   local count=0
+  local c='-'
 
-  # Check for value provided
-  if [ $# -eq 0 ]; then
+  # Check for values provided
+  if [ $# -lt 2 ]; then
      count_max=60
   else
-     count_max=$1
+     count_max=$2
   fi
+
+  if [ $# -lt 1 ]; then
+     c='-'
+  else
+     c=$1
+  fi
+
 
   # Default value - single printf
   if [ $count_max -eq 60 ]; then
 
-    local line="$TC_RED-$TC_YEL-$TC_GRN-$TC_BLU-$TC_MAG-$TC_CYN-"
+    local line="$TC_RED$c$TC_YEL$c$TC_GRN$c$TC_BLU$c$TC_CYN$c$TC_MAG$c"
 
     printf "%b%b%b%b%b%b%b%b%b%b${TC_OFF}\n"                   \
                       "$line" "$line" "$line" "$line" "$line"  \
@@ -163,7 +177,7 @@ function print_rainbow_line()
 
         local col=${color_array[$count]}
 
-        printf "${col}%s" "-"
+        printf "${col}%b" $c
 
         count=$(($count + 1))
         count=$(expr $count % 6)
@@ -181,7 +195,11 @@ function print_rainbow_line()
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: print_ansi_colors
 # ----------------------------------------------------------------------------
-#  DESCRIPTION  : Prints all the ANSI terminal color combinations
+#  DESCRIPTION  : Prints (some) ANSI terminal color combinations
+#
+#                 Note:  Uses (mostly) the "vivid" color ranges
+#                         - foreground = ( 90 - 97)
+#                         - background = (100 -107)
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
@@ -189,13 +207,29 @@ function print_ansi_colors()
 {
     echo ""
 
-    for x in 0 1 4 5 7 8; do
-        for i in `seq 30 37`; do
-            for a in `seq 40 47`; do
-                echo -ne "\e[$x;$i;$a""m\\\e[$x;$i;$a""m\e[0;37;40m "
-            done
-            echo
+    # Control Code Names
+    #                    0       1      2     3        4         5      6       7        8
+    local ctrl_names=("NORMAL" "BOLD" "DIM" "???" "UNDERLINE" "BLINK" "???" "REVERSE" "HIDDEN")
+
+    # Test all control combinations
+    for ctrl in 0 1 2 4 5 7 8; do
+      echo " Control: ${ctrl_names[${ctrl}]} "
+
+      # Each row - test all foreground (text-color) combinations
+      for fg in {30..37} {90..97}; do
+        echo -n "  "
+
+        # First column - make no background changes
+        echo -ne "\033[$ctrl;$fg""m\\\033[$ctrl;$fg""m\033[0m "
+
+        # Remaining columns - test all background combinations
+        for bg in {100..107}; do
+          # Set the attributes, print the attribute ansi codes, reset
+          echo -ne "\033[$ctrl;$fg;$bg""m\\\033[$ctrl;$fg;$bg""m\033[0m "
         done
+        echo
+      done
+      echo ""
     done
 
     echo ""

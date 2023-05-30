@@ -3,7 +3,7 @@
 #
 # This file defines the command aliases to be used in a Bash session.
 #
-# This file is intended to be "sourced" by .bashrc:
+# This file is intended to be "sourced" by .bashrc or equivalent:
 #
 #    if [ -f /<path>/.bash_aliases ]; then
 #     source /<path>/.bash_aliases
@@ -68,9 +68,17 @@ alias psme="ps -aef | grep ${USER}"
 # Type "please" to add sudo to your previous command
 alias please='sudo $(fc -ln -1)'
 
-# Launch Web Browsers
-alias   ffox='firefox       &> /dev/null &'
-alias chrome='google-chrome &> /dev/null &'
+# Launch Web Browser (w/ params):  Mozilla Firefox
+alias ffox='function _ffox()
+{
+  firefox "$@" &> /dev/null &
+}; _ffox'
+
+# Launch Web Browser (w/ params):  Google Chrome
+alias chrome='function _chrome()
+{
+  google-chrome "$@" &> /dev/null &
+}; _chrome'
 
 # Search aliases (defined in .bash_functions)
 alias   f='func_find'
@@ -87,8 +95,11 @@ alias sudo='sudo ';
 
 # Use colordiff, if available
 if type 'colordiff' &> /dev/null; then
-    alias diff='colordiff'
+  alias diff='colordiff'
 fi
+
+# Display the contents of PATH varaible (line-by-line)
+alias display-path='echo $PATH | tr : "\n"'
 
 # Gather system hardware specs and dump them to a local HTML file
 alias dump-hw-specs='sudo lshw -html > ./hardware_specs.html; echo "Created file => ./hardware_specs.html"'
