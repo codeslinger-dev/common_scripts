@@ -60,95 +60,255 @@ function display_system_uptime()
     s/  / /; s/, *[[:digit:]]* users?.*//')
   fi
 
-  echo $UPTIME
+  echo ${UPTIME}
 
 } # display_system_uptime()
 
 
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: display_processor_name
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Display the formatted processor name
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : na
+# ----------------------------------------------------------------------------
+function display_processor_name()
+{
+  # Attempt #1:  Parse /proc/cpuinfo
+  if [[ -f /proc/cpuinfo ]]; then
+    CPU_NAME=$(awk -F':' '/model name/{ print $2 }' /proc/cpuinfo | head -n 1 | tr -s " " | sed 's/^ //')
+  fi
+
+  # Attempt #2:  Parse /proc/cpuinfo (alternate format)
+  if [[ -z "$CPU_NAME" ]]; then
+    if [[ -f /proc/cpuinfo ]]; then
+      CPU_NAME=$(awk -F':' '/Model/{ print $2 }' /proc/cpuinfo | head -n 1 | tr -s " " | sed 's/^ //')
+    fi
+  fi
+
+  # Attempt #3:  Parse lscpu results
+  if [[ -z "$CPU_NAME" ]]; then
+    # Check if available
+    lscpu >/dev/null 2>&1
+
+    if [ "$?" -eq 0 ]; then
+      CPU_NAME=$(lscpu | grep 'Model name' | cut -f 2 -d ":" | awk '{$1=$1}1')
+    fi
+  fi
+
+  # Attempt #4:  Parse sysctl results (MacOS)
+  if [[ -z "$CPU_NAME" ]]; then
+    # Check if available
+    sysctl -n machdep.cpu.brand_string  >/dev/null 2>&1
+
+    if [ "$?" -eq 0 ]; then
+      CPU_NAME=$(sysctl -n machdep.cpu.brand_string)
+    fi
+  fi
+
+  # Attempt #5:  Parse sysctl results (FreeBSD)
+  if [[ -z "$CPU_NAME" ]]; then
+    # Check if available
+    sysctl -n hw.model  >/dev/null 2>&1
+
+    if [ "$?" -eq 0 ]; then
+      CPU_NAME=$(sysctl -n hw.model)
+    fi
+  fi
+
+
+  # Out of options:  Default value
+  if [[ -z "$CPU_NAME" ]]; then
+    CPU_NAME="---"
+  fi
+
+  echo ${CPU_NAME}
+
+} # display_processor_name()
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: display_home_size_total
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Display the formatted total size of /home
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : na
+# ----------------------------------------------------------------------------
+function display_home_size_total()
+{
+  HOME_SIZE=`df -h |  grep "home" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r '`
+
+  if [[ -z "$HOME_SIZE" ]]; then
+    HOME_SIZE=`df -h ~ |  grep -v "Size" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r '`
+  fi
+
+  if [[ -z "$HOME_SIZE" ]]; then
+    HOME_SIZE="---"
+  fi
+
+  echo ${HOME_SIZE}
+
+} # display_home_size_total()
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: display_home_size_free
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Display the formatted free size of /home
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : na
+# ----------------------------------------------------------------------------
+function display_home_size_free()
+{
+  HOME_FREE=`df -h |  grep "home" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r '`
+
+  if [[ -z "$HOME_FREE" ]]; then
+    HOME_FREE=`df -h ~ |  grep -v "Size" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r '`
+  fi
+
+  if [[ -z "$HOME_FREE" ]]; then
+    HOME_FREE="---"
+  fi
+
+  echo ${HOME_FREE}
+
+} # display_home_size_free()
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: display_mem_total
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Display the total amount of system ram (in GB)
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : na
+# ----------------------------------------------------------------------------
+function display_mem_total()
+{
+  # Attempt #1: Parse /proc/meminfo for memory (in kB)
+  if [ -f "/proc/meminfo" ]; then
+    MEM_SIZE=$( awk '/MemTotal/ { print $2 }' /proc/meminfo )
+  else
+    MEM_SIZE=""
+  fi
+
+  # Attempt #2:  Parse sysctl results for memory (in bytes) (FreeBSD)
+  if [[ -z "$MEM_SIZE" ]]; then
+    # Check if available
+    sysctl -n hw.physmem  >/dev/null 2>&1
+
+    if [ "$?" -eq 0 ]; then
+      MEM_SIZE=$(sysctl -n hw.physmem)
+      MEM_SIZE=$( echo "${MEM_SIZE} / 1024" | bc )
+    fi
+  fi
+
+  # Attempt #3:  Parse sysctl results for memory (in bytes) (macOS)
+  if [[ -z "$MEM_SIZE" ]]; then
+    # Check if available
+    sysctl -n hw.memsize  >/dev/null 2>&1
+
+    if [ "$?" -eq 0 ]; then
+      MEM_SIZE=$(sysctl -n hw.memsize)
+      MEM_SIZE=$( echo "${MEM_SIZE} / 1024" | bc )
+    fi
+  fi
+
+
+  # Convert kB into GB)
+  if [[ -z "$MEM_SIZE" ]]; then
+    MEM_SIZE="---"
+  else
+    MEM_SIZE=$( echo "scale=1 ; ${MEM_SIZE} / 1024 / 1024" | bc )
+  fi
+
+  echo ${MEM_SIZE}
+
+} # display_mem_total()
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: display_mem_free
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Display the free amount of system ram (in GB)
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : na
+# ----------------------------------------------------------------------------
+function display_mem_free()
+{
+  if [ -f "/proc/meminfo" ]; then
+    MEM_FREE=$( awk '/MemAvailable/ { print $2 }' /proc/meminfo )
+  else
+    MEM_FREE=""
+  fi
+
+  if [[ -z "$MEM_FREE" ]]; then
+    # Try memFree as an alternate
+    if [[ -f /proc/meminfo ]]; then
+      MEM_FREE=$( awk '/MemFree/ { print $2 }' /proc/meminfo )
+    fi
+  fi
+
+  # Convert kB into GB)
+  if [[ -z "$MEM_FREE" ]]; then
+    MEM_FREE="---"
+  else
+    MEM_FREE=$( echo "scale=1 ;${MEM_FREE} / 1024 / 1024" | bc )
+  fi
+
+  echo ${MEM_FREE}
+
+} # display_mem_free()
+
+
+
 # -- Gather system information -----------------------------------------------
 
-if [[ -f /proc/cpuinfo ]]; then
-  cpu=$(awk -F':' '/model name/{ print $2 }' /proc/cpuinfo | head -n 1 | tr -s " " | sed 's/^ //')
-else
-  cpu="-----"
-fi
+# Fetch user
+sys_user=$( echo "$USER" )
 
-user=$( echo "$USER" )
-host=$(hostname)
+# Fetch host
+sys_host=$(hostname)
 
-hdd_size=`df -h |  grep "home" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r '`
-hdd_free=`df -h |  grep "home" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r '`
+# Fetch kernel name
+sys_kernel_name=$(uname -s)
 
-if [ -f "/proc/meminfo" ]; then
-  total_mem=$( awk '/MemTotal/ { print $2 }' /proc/meminfo )
-  avail_mem=$( awk '/MemAvailable/ { print $2 }' /proc/meminfo )
-else
-  total_mem=""
-  avail_mem=""
-fi
+# Fetch kernel release
+sys_kernel_rel=$(uname -r)
 
+# Fetch kernel architecture
+sys_kernel_arch=$(uname -m)
 
-# -- Check for null vars -----------------------------------------------------
+# Fetch processor name
+sys_cpu=$(display_processor_name)
 
-if [[ -z "$cpu" ]]; then
-  cpu=$(awk -F':' '/Model/{ print $2 }' /proc/cpuinfo | head -n 1 | tr -s " " | sed 's/^ //')
-fi
+# Fetch size of /home (or equivalent)
+sys_homedir_size=$(display_home_size_total)
 
-if [[ -z "$cpu" ]]; then
-  cpu="-----"
-fi
+# Fetch free space of /home (or equivalent)
+sys_homedir_free=$(display_home_size_free)
 
+# Fetch available memory
+sys_mem_size=$(display_mem_total)
 
-if [[ -z "$hdd_size" ]]; then
-  hdd_size=`df -h /home |  grep -v "Size" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r '`
-fi
+# Fetch available memory
+sys_mem_free=$(display_mem_free)
 
-if [[ -z "$hdd_size" ]]; then
-  hdd_size="-----"
-fi
-
-
-if [[ -z "$hdd_free" ]]; then
-  hdd_free=`df -h /home |  grep -v "Size" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r '`
-fi
-
-if [[ -z "$hdd_free" ]]; then
-  hdd_free="-----"
-fi
-
-
-if [[ -z "$total_mem" ]]; then
-  total_mem="-----"
-else
-  total_mem=$( echo "${total_mem} / 1024 / 1024" | bc )
-fi
-
-
-if [[ -z "$avail_mem" ]]; then
-  # Try memFree as an alternate
-  if [[ -f /proc/meminfo ]]; then
-    avail_mem=$( awk '/MemFree/ { print $2 }' /proc/meminfo )
-  fi
-fi
-
-if [[ -z "$avail_mem" ]]; then
-  avail_mem="-----"
-else
-  avail_mem=$( echo "${avail_mem} / 1024 / 1024" | bc )
-fi
+# Fetch system uptime
+sys_uptime=$(display_system_uptime)
 
 
 # -- Display Greeting --------------------------------------------------------
+
 echo ""
 echo -e "--------------------------------------------------------------------"
 echo -e " ${TC_CYN}Date${TC_OFF} :  `date '+%B %d, %Y (%A)'`"
 echo -e " ${TC_CYN}Time${TC_OFF} :  `date '+%r'`"
-echo -e " ${TC_CYN}Host${TC_OFF} :  ${TC_MAG}${user}${TC_OFF} @ ${TC_MAG}${host}${TC_OFF}"
-echo -e "  - system    : ${TC_YEL}`uname -s`${TC_OFF} | ${TC_YEL}`uname -r`${TC_OFF}"
-echo -e "  - processor : ${TC_YEL}${cpu}${TC_OFF}"
-echo -e "  - ram       : ${TC_YEL}${total_mem} GB total${TC_OFF} (${TC_YEL}${avail_mem} GB free${TC_OFF})"
-echo -e "  - /home     : ${TC_YEL}$hdd_size total${TC_OFF} (${TC_YEL}${hdd_free} free${TC_OFF})"
-echo -e "  - uptime    : ${TC_YEL}$(display_system_uptime)${TC_OFF}"
+echo -e " ${TC_CYN}Host${TC_OFF} :  ${TC_YEL}${sys_user}${TC_OFF} @ ${TC_YEL}${sys_host}${TC_OFF}"
+echo -e "  - ${TC_MAG}system${TC_OFF}    : ${sys_kernel_name} ${TC_MAG}|${TC_OFF} ${sys_kernel_rel} ${TC_MAG}|${TC_OFF} ${sys_kernel_arch}"
+echo -e "  - ${TC_MAG}processor${TC_OFF} : ${sys_cpu}"
+echo -e "  - ${TC_MAG}ram${TC_OFF}       : ${sys_mem_size} GB total (${sys_mem_free} GB free)"
+echo -e "  - ${TC_MAG}/home${TC_OFF}     : ${sys_homedir_size} total (${sys_homedir_free} free)"
+echo -e "  - ${TC_MAG}uptime${TC_OFF}    : ${sys_uptime}"
 echo -e "--------------------------------------------------------------------"
 echo ""
 
