@@ -191,7 +191,18 @@ function display_mem_total()
     MEM_SIZE=""
   fi
 
-  # Attempt #2:  Parse sysctl results for memory (in bytes) (FreeBSD)
+  # Attempt #2:  Parse sysctl results for memory (in bytes) (macOS)
+  if [[ -z "$MEM_SIZE" ]]; then
+    # Check if available
+    sysctl -n hw.memsize  >/dev/null 2>&1
+
+    if [ "$?" -eq 0 ]; then
+      MEM_SIZE=$(sysctl -n hw.memsize)
+      MEM_SIZE=$( echo "${MEM_SIZE} / 1024" | bc )
+    fi
+  fi
+
+  # Attempt #3:  Parse sysctl results for memory (in bytes) (FreeBSD)
   if [[ -z "$MEM_SIZE" ]]; then
     # Check if available
     sysctl -n hw.physmem  >/dev/null 2>&1
@@ -202,16 +213,6 @@ function display_mem_total()
     fi
   fi
 
-  # Attempt #3:  Parse sysctl results for memory (in bytes) (macOS)
-  if [[ -z "$MEM_SIZE" ]]; then
-    # Check if available
-    sysctl -n hw.memsize  >/dev/null 2>&1
-
-    if [ "$?" -eq 0 ]; then
-      MEM_SIZE=$(sysctl -n hw.memsize)
-      MEM_SIZE=$( echo "${MEM_SIZE} / 1024" | bc )
-    fi
-  fi
 
 
   # Convert kB into GB)
