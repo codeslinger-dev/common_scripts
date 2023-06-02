@@ -136,10 +136,10 @@ function display_processor_name()
 # ----------------------------------------------------------------------------
 function display_home_size_total()
 {
-  HOME_SIZE=`df -h |  grep "home" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r '`
+  HOME_SIZE=`df -h ~ |  grep -v "Size" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r '`
 
   if [[ -z "$HOME_SIZE" ]]; then
-    HOME_SIZE=`df -h ~ |  grep -v "Size" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r '`
+    HOME_SIZE=`df -h |  grep "home" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r '`
   fi
 
   if [[ -z "$HOME_SIZE" ]]; then
@@ -160,10 +160,10 @@ function display_home_size_total()
 # ----------------------------------------------------------------------------
 function display_home_size_free()
 {
-  HOME_FREE=`df -h |  grep "home" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r '`
+  HOME_FREE=`df -h ~ |  grep -v "Size" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r '`
 
   if [[ -z "$HOME_FREE" ]]; then
-    HOME_FREE=`df -h ~ |  grep -v "Size" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r '`
+    HOME_FREE=`df -h |  grep "home" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r '`
   fi
 
   if [[ -z "$HOME_FREE" ]]; then
