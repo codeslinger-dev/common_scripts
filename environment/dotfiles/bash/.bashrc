@@ -170,6 +170,7 @@ export PATH
 # -- Finally, display login greeting -----------------------------------------
 if [ -f  ${LOCAL_BASH_PATH}/.bash_config_files/.bash_greeting ]; then
   source ${LOCAL_BASH_PATH}/.bash_config_files/.bash_greeting
+  display_greeting
 fi
 
 

@@ -51,7 +51,7 @@ function display_system_uptime()
 
     # Pretty-format:  Unsupported
 
-    # Parse the results and format to:  weeks, days, hours, minutes
+    # Parse the results and format to:  days, hours, minutes
 
     UPTIME=$(uptime | sed -E 's/^[^,]*up *//; s/mins/minutes/; s/hrs?/hours/;
     s/([[:digit:]]+):0?([[:digit:]]+)/\1 hours, \2 minutes/;
@@ -128,6 +128,69 @@ function display_processor_name()
 
 
 # ----------------------------------------------------------------------------
+#  FUNCTION NAME: display_num_cpu_cores
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Display the physical core-count of the CPU
+#                  [Sockets] x [Cores-Per-Socket]
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : na
+# ----------------------------------------------------------------------------
+function display_num_cpu_cores()
+{
+  local num_sockets=1
+  local cores_per_socket=1
+
+  # Check for 'lscpu' command
+  lscpu >/dev/null 2>&1
+
+  if [ "$?" -eq 0 ]; then
+    num_sockets=$(lscpu | grep "Socket(s):" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r ')
+    cores_per_socket=$(lscpu | grep "Core(s) per socket" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r ')
+  fi
+
+  NUM_CPU_CORES=$( echo "${num_sockets} * ${cores_per_socket}" | bc )
+
+  echo ${NUM_CPU_CORES}
+
+} # display_num_cpu_cores()
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: display_num_cpu_hwthreads
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Display the number hardware threads for the CPU
+#                  [Sockets] x [Cores-Per-Socket] x [Threads-Per-Core]
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : na
+# ----------------------------------------------------------------------------
+function display_num_cpu_hwthreads()
+{
+  local num_cores=$(display_num_cpu_cores)
+  local threads_per_cores=1
+
+  # Check for 'lscpu' command
+  lscpu >/dev/null 2>&1
+
+  if [ "$?" -eq 0 ]; then
+    threads_per_cores=$(lscpu | grep "Thread(s) per core:" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r ')
+  else
+    threads_per_cores=$( getconf _NPROCESSORS_ONLN )
+  fi
+
+  # Set minimum to 1
+  if [ ${threads_per_cores} -lt 1 ]; then
+    threads_per_cores=1
+  fi
+
+  NUM_CPU_HWTHREADS=$( echo "${num_cores} * ${threads_per_cores}" | bc )
+
+
+  echo ${NUM_CPU_HWTHREADS}
+
+} # display_num_cpu_hwthreads()
+
+
+# ----------------------------------------------------------------------------
 #  FUNCTION NAME: display_home_size_total
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Display the formatted total size of /home
@@ -136,12 +199,15 @@ function display_processor_name()
 # ----------------------------------------------------------------------------
 function display_home_size_total()
 {
+  # Attempt 1
   HOME_SIZE=`df -h ~ |  grep -v "Size" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r '`
 
+  # Attempt 2
   if [[ -z "$HOME_SIZE" ]]; then
     HOME_SIZE=`df -h |  grep "home" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r '`
   fi
 
+  # Out of options:  Default value
   if [[ -z "$HOME_SIZE" ]]; then
     HOME_SIZE="---"
   fi
@@ -160,12 +226,15 @@ function display_home_size_total()
 # ----------------------------------------------------------------------------
 function display_home_size_free()
 {
+  # Attempt 1
   HOME_FREE=`df -h ~ |  grep -v "Size" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r '`
 
+  # Attempt 2
   if [[ -z "$HOME_FREE" ]]; then
     HOME_FREE=`df -h |  grep "home" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r '`
   fi
 
+  # Out of options:  Default value
   if [[ -z "$HOME_FREE" ]]; then
     HOME_FREE="---"
   fi
@@ -214,7 +283,6 @@ function display_mem_total()
   fi
 
 
-
   # Convert kB into GB)
   if [[ -z "$MEM_SIZE" ]]; then
     MEM_SIZE="---"
@@ -236,18 +304,37 @@ function display_mem_total()
 # ----------------------------------------------------------------------------
 function display_mem_free()
 {
+  # Attempt #1: Parse /proc/meminfo for memory (in kB)
   if [ -f "/proc/meminfo" ]; then
     MEM_FREE=$( awk '/MemAvailable/ { print $2 }' /proc/meminfo )
-  else
-    MEM_FREE=""
   fi
 
+  # Attempt #2: Parse /proc/meminfo for memory (in kB)
   if [[ -z "$MEM_FREE" ]]; then
     # Try memFree as an alternate
-    if [[ -f /proc/meminfo ]]; then
+    if [ -f "/proc/meminfo" ]; then
       MEM_FREE=$( awk '/MemFree/ { print $2 }' /proc/meminfo )
     fi
   fi
+
+  # Attempt #3: Parse sysctl results for memory (in bytes)  (FreeBSD)
+  if [[ -z "$MEM_FREE" ]]; then
+    # Check if available
+    sysctl -n hw.pagesize  >/dev/null 2>&1
+
+    if [ "$?" -eq 0 ]; then
+      page_size=$(sysctl -n hw.pagesize)
+
+      # Check if available
+      sysctl -n vm.stats.vm.v_free_count  >/dev/null 2>&1
+
+      if [ "$?" -eq 0 ]; then
+        free_bytes_per_page=$(sysctl -n vm.stats.vm.v_free_count)
+        MEM_FREE=$( echo "${page_size} * ${free_bytes_per_page} / 1024" | bc )
+      fi
+    fi
+  fi
+
 
   # Convert kB into GB)
   if [[ -z "$MEM_FREE" ]]; then
@@ -261,57 +348,46 @@ function display_mem_free()
 } # display_mem_free()
 
 
-
-# -- Gather system information -----------------------------------------------
-
-# Fetch user
-sys_user=$( echo "$USER" )
-
-# Fetch host
-sys_host=$(hostname)
-
-# Fetch kernel name
-sys_kernel_name=$(uname -s)
-
-# Fetch kernel release
-sys_kernel_rel=$(uname -r)
-
-# Fetch kernel architecture
-sys_kernel_arch=$(uname -m)
-
-# Fetch processor name
-sys_cpu=$(display_processor_name)
-
-# Fetch size of /home (or equivalent)
-sys_homedir_size=$(display_home_size_total)
-
-# Fetch free space of /home (or equivalent)
-sys_homedir_free=$(display_home_size_free)
-
-# Fetch available memory
-sys_mem_size=$(display_mem_total)
-
-# Fetch available memory
-sys_mem_free=$(display_mem_free)
-
-# Fetch system uptime
-sys_uptime=$(display_system_uptime)
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: display_greeting
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Display the system greeting
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : na
+# ----------------------------------------------------------------------------
+function display_greeting()
+{
+  # Fetch system information
+  local sys_user=$( echo "$USER" )
+  local sys_host=$(hostname)
+  local sys_kernel_name=$(uname -s)
+  local sys_kernel_rel=$(uname -r)
+  local sys_kernel_arch=$(uname -m)
+  local sys_cpu=$(display_processor_name)
+  local sys_cpu_cores=$(display_num_cpu_cores)
+  local sys_cpu_threads=$(display_num_cpu_hwthreads)
+  local sys_homedir_size=$(display_home_size_total)
+  local sys_homedir_free=$(display_home_size_free)
+  local sys_mem_size=$(display_mem_total)
+  local sys_mem_free=$(display_mem_free)
+  local sys_uptime=$(display_system_uptime)
 
 
-# -- Display Greeting --------------------------------------------------------
+  # Display Greeting
+  echo ""
+  echo -e "--------------------------------------------------------------------"
+  echo -e " ${TC_CYN}Date${TC_OFF} :  `date '+%B %d, %Y (%A)'`"
+  echo -e " ${TC_CYN}Time${TC_OFF} :  `date '+%r'`"
+  echo -e " ${TC_CYN}Host${TC_OFF} :  ${TC_YEL}${sys_user}${TC_OFF} @ ${TC_YEL}${sys_host}${TC_OFF}"
+  echo -e "  - ${TC_MAG}system${TC_OFF}    : ${sys_kernel_name} ${TC_MAG}|${TC_OFF} ${sys_kernel_rel} ${TC_MAG}|${TC_OFF} ${sys_kernel_arch}"
+  echo -e "  - ${TC_MAG}processor${TC_OFF} : ${sys_cpu} ${TC_MAG}|${TC_OFF} ${sys_cpu_cores}C/${sys_cpu_threads}T"
+  echo -e "  - ${TC_MAG}ram${TC_OFF}       : ${sys_mem_size} GB total ${TC_MAG}|${TC_OFF} ${sys_mem_free} GB free"
+  echo -e "  - ${TC_MAG}/home${TC_OFF}     : ${sys_homedir_size} total ${TC_MAG}|${TC_OFF} ${sys_homedir_free} free"
+  echo -e "  - ${TC_MAG}uptime${TC_OFF}    : ${sys_uptime}"
+  echo -e "--------------------------------------------------------------------"
+  echo ""
 
-echo ""
-echo -e "--------------------------------------------------------------------"
-echo -e " ${TC_CYN}Date${TC_OFF} :  `date '+%B %d, %Y (%A)'`"
-echo -e " ${TC_CYN}Time${TC_OFF} :  `date '+%r'`"
-echo -e " ${TC_CYN}Host${TC_OFF} :  ${TC_YEL}${sys_user}${TC_OFF} @ ${TC_YEL}${sys_host}${TC_OFF}"
-echo -e "  - ${TC_MAG}system${TC_OFF}    : ${sys_kernel_name} ${TC_MAG}|${TC_OFF} ${sys_kernel_rel} ${TC_MAG}|${TC_OFF} ${sys_kernel_arch}"
-echo -e "  - ${TC_MAG}processor${TC_OFF} : ${sys_cpu}"
-echo -e "  - ${TC_MAG}ram${TC_OFF}       : ${sys_mem_size} GB total (${sys_mem_free} GB free)"
-echo -e "  - ${TC_MAG}/home${TC_OFF}     : ${sys_homedir_size} total (${sys_homedir_free} free)"
-echo -e "  - ${TC_MAG}uptime${TC_OFF}    : ${sys_uptime}"
-echo -e "--------------------------------------------------------------------"
-echo ""
+} # display_greeting()
 
 
 # -- End of File  ------------------------------------------------------------

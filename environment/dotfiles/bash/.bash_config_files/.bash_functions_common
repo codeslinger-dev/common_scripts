@@ -34,14 +34,14 @@ export TC_OFF='\033[0m'
 #                 in Bash, either with or without a default answer. It keeps
 #                 repeating the question until it gets a valid answer.
 #
-#                 Example 1:   Default to 'Yes' if the user presses enter
-#                              without giving an answer:
+#                 Example:  Default to 'Yes' if the user presses enter
+#                           without giving an answer:
 #
-#                              if confirm_choice "Do you want to proceed?" Y; then
-#                                 echo "Yes"
-#                              else
-#                                 echo "No"
-#                              fi
+#                           if confirm_choice "Do you want to proceed?" Y; then
+#                             echo "Yes"
+#                           else
+#                             echo "No"
+#                           fi
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $1 = Text string to display as prompt
 #                 $2 = Default answer (Y or N)  [optional]
