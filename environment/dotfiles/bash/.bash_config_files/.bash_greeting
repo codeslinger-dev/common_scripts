@@ -145,9 +145,17 @@ function display_num_cpu_cores()
 
   if [ "$?" -eq 0 ]; then
     num_sockets=$(lscpu | grep "Socket(s):" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r ')
-    cores_per_socket=$(lscpu | grep "Core(s) per socket" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r ')
 
-    NUM_CPU_CORES=$( echo "${num_sockets} * ${cores_per_socket}" | bc )
+    # system uses "clusters" rather than sockets? (RaspPi)
+    if [[ "${num_sockets}" == "-" ]]; then
+      num_clusters=$(lscpu | grep "Cluster(s):" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r ')
+
+      cores_per_cluster=$(lscpu | grep "Core(s) per cluster" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r ')
+      NUM_CPU_CORES=$( echo "${num_clusters} * ${cores_per_cluster}" | bc )
+    else
+      cores_per_socket=$(lscpu | grep "Core(s) per socket" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r ')
+      NUM_CPU_CORES=$( echo "${num_sockets} * ${cores_per_socket}" | bc )
+    fi
   fi
 
   # Attempt 2
