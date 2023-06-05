@@ -146,9 +146,25 @@ function display_num_cpu_cores()
   if [ "$?" -eq 0 ]; then
     num_sockets=$(lscpu | grep "Socket(s):" | awk '{ print $2 }' | head -1 | tail -1 | tr -d '\r ')
     cores_per_socket=$(lscpu | grep "Core(s) per socket" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r ')
+
+    NUM_CPU_CORES=$( echo "${num_sockets} * ${cores_per_socket}" | bc )
   fi
 
-  NUM_CPU_CORES=$( echo "${num_sockets} * ${cores_per_socket}" | bc )
+  # Attempt 2
+  if [[ -z "$NUM_CPU_CORES" ]]; then
+    # Check if available
+    sysctl -n  hw.physicalcpu >/dev/null 2>&1
+
+    if [ "$?" -eq 0 ]; then
+      NUM_CPU_CORES=$(sysctl -n hw.physicalcpu)
+    fi
+  fi
+
+
+  # Out of options:  Default value
+  if [[ -z "$NUM_CPU_CORES" ]]; then
+    NUM_CPU_CORES=1
+  fi
 
   echo ${NUM_CPU_CORES}
 
@@ -166,24 +182,23 @@ function display_num_cpu_cores()
 function display_num_cpu_hwthreads()
 {
   local num_cores=$(display_num_cpu_cores)
-  local threads_per_cores=1
+  local threads_per_core=1
 
   # Check for 'lscpu' command
   lscpu >/dev/null 2>&1
 
   if [ "$?" -eq 0 ]; then
-    threads_per_cores=$(lscpu | grep "Thread(s) per core:" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r ')
+    threads_per_core=$(lscpu | grep "Thread(s) per core:" | awk '{ print $4 }' | head -1 | tail -1 | tr -d '\r ')
   else
-    threads_per_cores=$( getconf _NPROCESSORS_ONLN )
+    threads_per_core=$( echo `getconf _NPROCESSORS_ONLN` / ${num_cores} | bc )
   fi
 
   # Set minimum to 1
-  if [ ${threads_per_cores} -lt 1 ]; then
-    threads_per_cores=1
+  if [ ${threads_per_core} -lt 1 ]; then
+    threads_per_core=1
   fi
 
-  NUM_CPU_HWTHREADS=$( echo "${num_cores} * ${threads_per_cores}" | bc )
-
+  NUM_CPU_HWTHREADS=$( echo "${num_cores} * ${threads_per_core}" | bc )
 
   echo ${NUM_CPU_HWTHREADS}
 
