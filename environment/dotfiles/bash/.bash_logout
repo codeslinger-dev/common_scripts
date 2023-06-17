@@ -34,7 +34,7 @@ while [ $COUNT -gt 0 ]; do
   let COUNT=COUNT-1
   xterm_set_title "xterm | ${USER} @ $(hostname) | Exiting in $COUNT.."
   echo -ne                                "\rExiting in ${MAG}$COUNT${OFF}.."
-  sleep 0.5
+  sleep 0.4
 done
 
 echo " <disconnect>"

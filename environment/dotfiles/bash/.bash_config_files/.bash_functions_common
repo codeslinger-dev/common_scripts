@@ -177,8 +177,10 @@ function xterm_set_title()
 # ----------------------------------------------------------------------------
 function xterm_invoke_ssh()
 {
-   xterm_set_title "Running: 'ssh $@'"
-   \ssh "$@"
+   local ssh_params="$@"
+
+   xterm_set_title "Running: 'ssh ${ssh_params}'"
+   \ssh ${ssh_params}
 
 } # xterm_invoke_ssh()
 
@@ -192,8 +194,10 @@ function xterm_invoke_ssh()
 # ----------------------------------------------------------------------------
 function xterm_invoke_su()
 {
-   xterm_set_title "Running: 'su $@'"
-   \su "$@"
+   local su_params="$@"
+
+   xterm_set_title "Running: 'su ${su_params}'"
+   \su ${su_params}
 
 } # xterm_invoke_su()
 
