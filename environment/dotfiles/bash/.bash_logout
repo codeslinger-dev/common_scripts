@@ -29,7 +29,7 @@ echo -e "--------------------------------------------------------------------"
 echo -e ""
 
 # Delay and exit
-COUNT=6
+COUNT=4
 while [ $COUNT -gt 0 ]; do
   let COUNT=COUNT-1
   xterm_set_title "xterm | ${USER} @ $(hostname) | Exiting in $COUNT.."

@@ -47,11 +47,11 @@ function fn_git_completion_register_alias()
        if type -t ${completion_func} >/dev/null 2>&1 ; then
          # Register provided alias
          ${register_func}  ${1} ${completion_func}
-       else
-         log_warn "Completion Function - Not Valid:  ${completion_func}"
+#       else
+#         log_warn "Completion Function - Not Valid:  ${completion_func}"
        fi
-     else
-       log_info "Register Function - Not Valid:  ${register_func}"
+#     else
+#       log_info "Register Function - Not Valid:  ${register_func}"
      fi
 
    fi
