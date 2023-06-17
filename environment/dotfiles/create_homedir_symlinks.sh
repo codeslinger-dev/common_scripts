@@ -22,7 +22,7 @@ timestamp=$(date +%Y%m%d_%H%M%S)
 script_dir="$(dirname $(readlink -f $0))"
 config_dirname=".dotfiles"
 new_config_location=${homedir}/${config_dirname}
-backup_folder_name="${homedir}/BACKUP_${user}_config_files_${timestamp}"
+backup_folder_name="${homedir}/DOTFILE_BACKUPS/${user}_config_files_${timestamp}"
 
 
 # -- Color scheme ------------------------------------------------------------
@@ -110,17 +110,22 @@ fi
 #
 echo -n -e " ${col_yel}::${col_off} Archiving config files :  ${col_cyn}Bash${col_off}      ${col_yel}>>${col_off} "
 
+if [[ -f ${homedir}/.bash_settings_custom ]]; then
+  ${CMD_COPY_DEEP}  ${homedir}/.bash_settings_custom ${backup_folder_name}/
+  # <do not delete custom settings file>
+fi
+
 if [[ -f ${homedir}/.bashrc ]]; then
-  ${CMD_COPY_DEEP}  ${homedir}/.bashrc             ${backup_folder_name}/
+  ${CMD_COPY_DEEP}  ${homedir}/.bashrc               ${backup_folder_name}/
   ${CMD_RM}         ${homedir}/.bashrc
 
-  ${CMD_COPY_DEEP}  ${homedir}/.bash_profile       ${backup_folder_name}/
+  ${CMD_COPY_DEEP}  ${homedir}/.bash_profile         ${backup_folder_name}/
   ${CMD_RM}         ${homedir}/.bash_profile
 
-  ${CMD_COPY_DEEP}  ${homedir}/.bash_logout        ${backup_folder_name}/
+  ${CMD_COPY_DEEP}  ${homedir}/.bash_logout          ${backup_folder_name}/
   ${CMD_RM}         ${homedir}/.bash_logout
 
-  ${CMD_COPY_DEEP}  ${homedir}/.bash_config_files  ${backup_folder_name}/
+  ${CMD_COPY_DEEP}  ${homedir}/.bash_config_files    ${backup_folder_name}/
   ${CMD_RM}         ${homedir}/.bash_config_files
 
   echo -e "[${col_grn} SUCCESS ${col_off}]"

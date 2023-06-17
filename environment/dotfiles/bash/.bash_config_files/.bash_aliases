@@ -98,6 +98,10 @@ if type 'colordiff' &> /dev/null; then
   alias diff='colordiff'
 fi
 
+# Modify the xterm title prior to running ssh or su
+alias ssh='xterm_invoke_ssh'
+alias  su='xterm_invoke_su'
+
 # Display the contents of PATH varaible (line-by-line)
 alias display-path='echo $PATH | tr : "\n"'
 

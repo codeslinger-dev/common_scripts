@@ -18,7 +18,7 @@ XTerm*faceName:           Monospace:antialias=true
 XTerm*faceSize:           9.5
 
 XTerm*dynamicColors:      true
-XTerm*background:         #1c1c1c
+XTerm*background:         #171717
 XTerm*foreground:         #fdfdfd
 XTerm*cursorColor:        #ffff00
 XTerm*borderColor:        #ffff00
@@ -26,6 +26,7 @@ XTerm*pointerColor:       #ffff00
 
 XTerm*geometry:           220x32
 
+XTerm*allowTitleOps:      true
 XTerm*visualBell:         false
 XTerm*highlightSelection: true
 XTerm*internalBorder:     3

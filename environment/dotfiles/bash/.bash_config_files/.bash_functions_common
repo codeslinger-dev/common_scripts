@@ -100,6 +100,29 @@ function confirm_choice()
 
 
 # ----------------------------------------------------------------------------
+#  FUNCTION NAME: find_command_location
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Find the source location of a command
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : $1 = Command to locate
+# ----------------------------------------------------------------------------
+function find_command_location()
+{
+    if [[ $# -eq 1 ]] ; then
+
+      if [[ "$(type -t ${1})" == "function" ]] ; then
+        shopt -s extdebug
+        declare -F ${1}
+      else
+        type -a ${1}
+      fi
+
+    fi
+
+} # find_command_location()
+
+
+# ----------------------------------------------------------------------------
 #  FUNCTION NAME: xterm_with_color
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Spawn an xterm with the provided color highlights
@@ -123,6 +146,56 @@ function xterm_with_color()
           -title "[xterm]:" &
 
 } # xterm_with_color()
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: xterm_set_title
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Dynamically set the title of the current xterm
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : $1 = String to set as new title
+# ----------------------------------------------------------------------------
+function xterm_set_title()
+{
+    case "$TERM" in
+    xterm*|rxvt*)
+        echo -ne "\033]0;${1}\007"
+        ;;
+    *)
+        ;;
+    esac
+
+} # xterm_set_title()
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: xterm_invoke_ssh
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Change the xterm title prior to invoking 'ssh'
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : $@ = 'ssh' parameters
+# ----------------------------------------------------------------------------
+function xterm_invoke_ssh()
+{
+   xterm_set_title "Running: 'ssh $@'"
+   \ssh "$@"
+
+} # xterm_invoke_ssh()
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: xterm_invoke_su
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Change the xterm title prior to invoking 'su'
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : $@ = 'su' parameters
+# ----------------------------------------------------------------------------
+function xterm_invoke_su()
+{
+   xterm_set_title "Running: 'su $@'"
+   \su "$@"
+
+} # xterm_invoke_su()
 
 
 # ----------------------------------------------------------------------------
@@ -235,6 +308,57 @@ function print_ansi_colors()
     echo ""
 
 } # print_ansi_colors()
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: log_get_current_timestamp
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Prints the current timestamp, for use with the logging
+#                 function defined below
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : na
+# ----------------------------------------------------------------------------
+function log_get_current_timestamp()
+{
+    local time_now=$(date +"%Y-%m-%d %H:%M:%S")
+    echo "${time_now}"
+}
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: log_error / log_warn / log_info / log_debug
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Prints the provided log message to stderr, pre-pending
+#                 it with timestamp and color-coded [<LOG-TYPE>]
+#
+#                 Usage:  log_error "This is an error msg"
+#                 Result: 2023-06-14 21:24:23 [ERROR] This is an error msg
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : $1 = Message to print
+# ----------------------------------------------------------------------------
+function log_error()
+{
+    local time_now=$(log_get_current_timestamp)
+    echo -e "${TC_DRK}${time_now}${TC_OFF} [${TC_RED}ERROR${TC_OFF}] ${1}" >&2
+} # log_error()
+
+function log_warn()
+{
+    local time_now=$(log_get_current_timestamp)
+    echo -e "${TC_DRK}${time_now}${TC_OFF} [${TC_YEL} WARN${TC_OFF}] ${1}" >&2
+} # log_warn()
+
+function log_info()
+{
+    local time_now=$(log_get_current_timestamp)
+    echo -e "${TC_DRK}${time_now}${TC_OFF} [${TC_MAG} INFO${TC_OFF}] ${1}" >&2
+} # log_info()
+
+function log_debug()
+{
+    local time_now=$(log_get_current_timestamp)
+    echo -e "${TC_DRK}${time_now}${TC_OFF} [${TC_GRN}DEBUG${TC_OFF}] ${1}" >&2
+} # log_debug()
 
 
 # -- File has been sourced ---------------------------------------------------

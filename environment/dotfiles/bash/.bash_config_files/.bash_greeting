@@ -399,7 +399,7 @@ function display_greeting()
   # Display Greeting
   echo ""
   echo -e "--------------------------------------------------------------------"
-  echo -e " ${TC_CYN}Date${TC_OFF} :  `date '+%B %d, %Y (%A)'`"
+  echo -e " ${TC_CYN}Date${TC_OFF} :  `date '+%B %d, %Y'` (${TC_GRN}`date '+%A'`${TC_OFF})"
   echo -e " ${TC_CYN}Time${TC_OFF} :  `date '+%r'`"
   echo -e " ${TC_CYN}Host${TC_OFF} :  ${TC_YEL}${sys_user}${TC_OFF} @ ${TC_YEL}${sys_host}${TC_OFF}"
   echo -e "  - ${TC_MAG}system${TC_OFF}    : ${sys_kernel_name} ${TC_MAG}|${TC_OFF} ${sys_kernel_rel} ${TC_MAG}|${TC_OFF} ${sys_kernel_arch}"

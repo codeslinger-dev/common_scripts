@@ -83,63 +83,63 @@ function _ignore_git_command()
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_status
+#  FUNCTION NAME: fn_git_status
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Show working-area status
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_status()
+function fn_git_status()
 {
     local git_command="git status"
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_status
+} # fn_git_status
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_status_short
+#  FUNCTION NAME: fn_git_status_short
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Show working-area status (short output)
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_status_short()
+function fn_git_status_short()
 {
     local git_command="git status --short"
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_status_short
+} # fn_git_status_short
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_add
+#  FUNCTION NAME: fn_git_add
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Stage provided file(s)
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $@ = list of files to stage
 # ----------------------------------------------------------------------------
-function _git_add()
+function fn_git_add()
 {
     local git_command="git add \"$@\""
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_add
+} # fn_git_add
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_add_all
+#  FUNCTION NAME: fn_git_add_all
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Stage all files (w/ confirmation)
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_add_all()
+function fn_git_add_all()
 {
     local git_command="git add --all ."
 
@@ -153,17 +153,17 @@ function _git_add_all()
         _ignore_git_command  "${git_command}"
     fi
 
-} # _git_add_all
+} # fn_git_add_all
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_cherry_pick
+#  FUNCTION NAME: fn_git_cherry_pick
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Apply a single commit to the current branch
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $@ = Commit to apply
 # ----------------------------------------------------------------------------
-function _git_cherry_pick()
+function fn_git_cherry_pick()
 {
     local git_command="git cherry-pick \"$@\""
 
@@ -177,18 +177,18 @@ function _git_cherry_pick()
         _ignore_git_command  "${git_command}"
     fi
 
-} # _git_cherry_pick
+} # fn_git_cherry_pick
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_cherry_pick_append
+#  FUNCTION NAME: fn_git_cherry_pick_append
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Apply a single commit to the current branch, appending
 #                 a line to the commit message ("cherry-picked from ..")
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $@ = Commit to apply
 # ----------------------------------------------------------------------------
-function _git_cherry_pick_append()
+function fn_git_cherry_pick_append()
 {
     local git_command="git cherry-pick -x \"$@\""
 
@@ -202,34 +202,34 @@ function _git_cherry_pick_append()
         _ignore_git_command  "${git_command}"
     fi
 
-} # _git_cherry_pick_append
+} # fn_git_cherry_pick_append
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_commit
+#  FUNCTION NAME: fn_git_commit
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Commit staged files
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_commit()
+function fn_git_commit()
 {
     local git_command="git commit"
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_commit
+} # fn_git_commit
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_commit_message
+#  FUNCTION NAME: fn_git_commit_message
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Commmit staged files, with the provided message string
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $@ = Commit message
 # ----------------------------------------------------------------------------
-function _git_commit_message()
+function fn_git_commit_message()
 {
     local git_command="git commit --message \"$@\""
 
@@ -243,18 +243,18 @@ function _git_commit_message()
         _ignore_git_command  "${git_command}"
     fi
 
-} # _git_commit_message
+} # fn_git_commit_message
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_commit_amend_message
+#  FUNCTION NAME: fn_git_commit_amend_message
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Add any staged files to the previous commit, updating
 #                 the commit message with the provided message string
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $@ = Commit message
 # ----------------------------------------------------------------------------
-function _git_commit_amend_message()
+function fn_git_commit_amend_message()
 {
     local git_command="git commit --amend --message \"$@\""
 
@@ -268,34 +268,34 @@ function _git_commit_amend_message()
         _ignore_git_command  "${git_command}"
     fi
 
-} # _git_commit_amend_message
+} # fn_git_commit_amend_message
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_branch
+#  FUNCTION NAME: fn_git_branch
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Create a branch with the provided name
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $@ = Branch name
 # ----------------------------------------------------------------------------
-function _git_branch()
+function fn_git_branch()
 {
     local git_command="git branch \"$@\""
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_branch
+} # fn_git_branch
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_branch_delete
+#  FUNCTION NAME: fn_git_branch_delete
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Delete the provided branch (w/ confirmation)
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $@ = Branch name
 # ----------------------------------------------------------------------------
-function _git_branch_delete()
+function fn_git_branch_delete()
 {
     local git_command="git branch --delete \"$@\""
 
@@ -309,34 +309,34 @@ function _git_branch_delete()
         _ignore_git_command  "${git_command}"
     fi
 
-} # _git_branch_delete
+} # fn_git_branch_delete
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_checkout
+#  FUNCTION NAME: fn_git_checkout
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Checkout an existing branch
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $@ = Branch name
 # ----------------------------------------------------------------------------
-function _git_checkout()
+function fn_git_checkout()
 {
     local git_command="git checkout \"$@\""
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_checkout
+} # fn_git_checkout
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_checkout_branch
+#  FUNCTION NAME: fn_git_checkout_branch
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Checkout a new branch (w/ confirmation)
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $@ = Branch name
 # ----------------------------------------------------------------------------
-function _git_checkout_branch()
+function fn_git_checkout_branch()
 {
     local git_command="git checkout -b \"$@\""
 
@@ -350,113 +350,113 @@ function _git_checkout_branch()
         _ignore_git_command  "${git_command}"
     fi
 
-} # _git_checkout_branch
+} # fn_git_checkout_branch
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_diff
+#  FUNCTION NAME: fn_git_diff
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Show unstaged differences
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_diff()
+function fn_git_diff()
 {
     local git_command="git diff"
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_diff
+} # fn_git_diff
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_diff_summary
+#  FUNCTION NAME: fn_git_diff_summary
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Show summary of unstaged differences
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_diff_summary()
+function fn_git_diff_summary()
 {
     local git_command="git diff --stat"
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_diff_summary
+} # fn_git_diff_summary
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_diff_all
+#  FUNCTION NAME: fn_git_diff_all
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Show all diffs (unstaged + staged vs HEAD)
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_diff_all()
+function fn_git_diff_all()
 {
     local git_command="git diff HEAD"
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_diff_all
+} # fn_git_diff_all
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_diff_all_summary
+#  FUNCTION NAME: fn_git_diff_all_summary
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Show summary of all diffs (unstaged + staged vs HEAD)
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_diff_all_summary()
+function fn_git_diff_all_summary()
 {
     local git_command="git diff HEAD --stat"
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_diff_all_summary
+} # fn_git_diff_all_summary
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_log
+#  FUNCTION NAME: fn_git_log
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Show the git log
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_log()
+function fn_git_log()
 {
     local git_command="git log"
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_log
+} # fn_git_log
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_log_graph
+#  FUNCTION NAME: fn_git_log_graph
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Show the git log (w/ graph)
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_log_graph()
+function fn_git_log_graph()
 {
     local git_command="git log --graph --oneline --decorate --all"
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_log_graph
+} # fn_git_log_graph
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_log_graph_detailed
+#  FUNCTION NAME: fn_git_log_graph_detailed
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Show the git log (w/ graph +details)
 #
@@ -467,18 +467,18 @@ function _git_log_graph()
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_log_graph_detailed()
+function fn_git_log_graph_detailed()
 {
     local git_command="git log --graph --pretty=format:\"%C(yellow)%h%C(reset)  %C(cyan)%ad%C(reset)  %s %C(auto)%d%C(reset)\" --date=short --all"
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_log_graph_detailed
+} # fn_git_log_graph_detailed
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_log_oneline
+#  FUNCTION NAME: fn_git_log_oneline
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Show the git log (w/ one-line)
 #
@@ -488,18 +488,18 @@ function _git_log_graph_detailed()
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_log_oneline()
+function fn_git_log_oneline()
 {
     local git_command="git log --pretty=format:\"%C(yellow)%h%C(reset)  %C(cyan)%ad%C(reset)  %s\" --date=short --all"
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_log_oneline
+} # fn_git_log_oneline
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_log_oneline_detailed
+#  FUNCTION NAME: fn_git_log_oneline_detailed
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Show the git log (w/ one-line +details)
 #
@@ -511,143 +511,143 @@ function _git_log_oneline()
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_log_oneline_detailed()
+function fn_git_log_oneline_detailed()
 {
     local git_command="git log --pretty=format:\"%C(yellow)%h%C(reset)  %C(cyan)%ad%C(reset)  %C(magenta)%><(22,ltrunc)%aN%C(reset)  %s %C(auto)%d%C(reset)\"  --date=short --all"
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_log_oneline_detailed
+} # fn_git_log_oneline_detailed
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_show
+#  FUNCTION NAME: fn_git_show
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Show details of the provided commit id or other object
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $@ = Object to show
 # ----------------------------------------------------------------------------
-function _git_show()
+function fn_git_show()
 {
     local git_command="git show \"$@\""
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_show
+} # fn_git_show
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_show_summary
+#  FUNCTION NAME: fn_git_show_summary
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Show a summary of the provided commit id or other object
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $@ = Object to show
 # ----------------------------------------------------------------------------
-function _git_show_summary()
+function fn_git_show_summary()
 {
     local git_command="git show \"$@\" --stat"
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_show_summary
+} # fn_git_show_summary
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_stash_list
+#  FUNCTION NAME: fn_git_stash_list
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Stash the current changes
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_stash()
+function fn_git_stash()
 {
     local git_command="git stash"
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_stash
+} # fn_git_stash
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_stash_list
+#  FUNCTION NAME: fn_git_stash_list
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : List the saved stashes
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_stash_list()
+function fn_git_stash_list()
 {
     local git_command="git stash list"
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_stash_list
+} # fn_git_stash_list
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_stash_save
+#  FUNCTION NAME: fn_git_stash_save
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Save (push) the requested stash to stack
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $@ = Message (optional)
 # ----------------------------------------------------------------------------
-function _git_stash_save()
+function fn_git_stash_save()
 {
     local git_command="git stash save \"$@\""
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_stash_save
+} # fn_git_stash_save
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_stash_pop
+#  FUNCTION NAME: fn_git_stash_pop
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Pop the requested stash from stack
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $@ = Stash name (or index)
 # ----------------------------------------------------------------------------
-function _git_stash_pop()
+function fn_git_stash_pop()
 {
     local git_command="git stash pop \"$@\""
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_stash_pop
+} # fn_git_stash_pop
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_stash_apply
+#  FUNCTION NAME: fn_git_stash_apply
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Apply the requested stash to the working directory
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $@ = Stash name (or index)
 # ----------------------------------------------------------------------------
-function _git_stash_apply()
+function fn_git_stash_apply()
 {
     local git_command="git stash apply \"$@\""
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_stash_apply
+} # fn_git_stash_apply
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_stash_drop
+#  FUNCTION NAME: fn_git_stash_drop
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Drop the requested stash (w/ confirmation)
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $@ = Stash name (or index)
 # ----------------------------------------------------------------------------
-function _git_stash_drop()
+function fn_git_stash_drop()
 {
     local git_command="git stash drop \"$@\""
 
@@ -661,17 +661,17 @@ function _git_stash_drop()
         _ignore_git_command  "${git_command}"
     fi
 
-} # _git_stash_drop
+} # fn_git_stash_drop
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_push
+#  FUNCTION NAME: fn_git_push
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Push (to remote repository)
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_push()
+function fn_git_push()
 {
     local git_command="git push"
 
@@ -685,17 +685,17 @@ function _git_push()
         _ignore_git_command  "${git_command}"
     fi
 
-} # _git_push
+} # fn_git_push
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_push_branch
+#  FUNCTION NAME: fn_git_push_branch
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Push current branch (to remote repository)
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_push_branch()
+function fn_git_push_branch()
 {
     local git_command="git push -u origin HEAD"
 
@@ -709,17 +709,17 @@ function _git_push_branch()
         _ignore_git_command  "${git_command}"
     fi
 
-} # _git_push_branch
+} # fn_git_push_branch
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_push_branch_by_name
+#  FUNCTION NAME: fn_git_push_branch_by_name
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Push current branch (to remote repository)
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $@ = Remote name (or path)
 # ----------------------------------------------------------------------------
-function _git_push_branch_by_name()
+function fn_git_push_branch_by_name()
 {
     local git_command="git push -u origin \"$@\""
 
@@ -733,17 +733,17 @@ function _git_push_branch_by_name()
         _ignore_git_command  "${git_command}"
     fi
 
-} # _git_push_branch_by_name
+} # fn_git_push_branch_by_name
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_pull
+#  FUNCTION NAME: fn_git_pull
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Pull (from remote repository)
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_pull()
+function fn_git_pull()
 {
     local git_command="git pull"
 
@@ -757,17 +757,17 @@ function _git_pull()
         _ignore_git_command  "${git_command}"
     fi
 
-} # _git_pull
+} # fn_git_pull
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_pull_rebase
+#  FUNCTION NAME: fn_git_pull_rebase
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Pull and rebase (from remote repository)
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_pull_rebase()
+function fn_git_pull_rebase()
 {
     local git_command="git pull --rebase"
 
@@ -781,41 +781,41 @@ function _git_pull_rebase()
         _ignore_git_command  "${git_command}"
     fi
 
-} # _git_pull_rebase
+} # fn_git_pull_rebase
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_merge
+#  FUNCTION NAME: fn_git_merge
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Perform merge, without fast-forward
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_merge()
+function fn_git_merge()
 {
     local git_command="git merge --no-ff --progress"
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_merge
+} # fn_git_merge
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: _git_merge_ff
+#  FUNCTION NAME: fn_git_merge_ff
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Perform merge, only if fast-forward is available
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
-function _git_merge_ff()
+function fn_git_merge_ff()
 {
     local git_command="git merge --ff-only"
 
     _display_git_command "${git_command}"
     _execute_git_command "${git_command}"
 
-} # _git_merge_ff
+} # fn_git_merge_ff
 
 
 # -- File has been sourced ---------------------------------------------------

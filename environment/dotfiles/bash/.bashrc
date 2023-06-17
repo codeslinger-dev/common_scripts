@@ -81,16 +81,6 @@ unset color_prompt
 unset force_color_prompt
 
 
-# -- If xterm, set the title to 'user @ host: dir' ---------------------------
-case "$TERM" in
-  xterm*|rxvt*)
-    PS1="\[\e]0;\u @ \h: \w\a\]$PS1"
-    ;;
-  *)
-    ;;
-esac
-
-
 # -- Set preferred editor for local and remote sessions ----------------------
 if [[ -n $SSH_CONNECTION ]]; then
     export EDITOR='vim'
@@ -114,6 +104,8 @@ export LESS="FRX"
 if ! shopt -oq posix; then
   if   [ -f /usr/share/bash-completion/bash_completion ]; then
     source  /usr/share/bash-completion/bash_completion
+  elif [ -f /usr/local/share/bash-completion/bash_completion ]; then
+    source  /usr/local/share/bash-completion/bash_completion
   elif [ -f /etc/bash_completion ]; then
     source  /etc/bash_completion
   fi
@@ -175,8 +167,9 @@ fi
 
 
 # Timestamp (current)
-export TIME_AT_LOGIN=`date '+%F %r'`
-
+if [[ -z $TIME_AT_LOGIN ]] ; then
+  export TIME_AT_LOGIN=`date '+%F %r'`
+fi
 
 # -- End of File  ------------------------------------------------------------
 # ----------------------------------------------------------------------------

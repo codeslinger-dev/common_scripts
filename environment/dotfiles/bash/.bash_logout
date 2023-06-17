@@ -22,14 +22,22 @@ export TIME_AT_LOGOUT=`date '+%F %r'`
 # Display
 echo -e ""
 echo -e "--------------------------------------------------------------------"
-echo -e " Disconnecting ${MAG}$user${OFF} @ ${MAG}$(hostname)${OFF}.."
+echo -e " Disconnecting ${MAG}${USER}${OFF} @ ${MAG}$(hostname)${OFF}.."
 echo -e "   - Login  : ${YEL}$TIME_AT_LOGIN ${OFF}"
 echo -e "   - Logout : ${YEL}$TIME_AT_LOGOUT${OFF}"
 echo -e "--------------------------------------------------------------------"
 echo -e ""
 
 # Delay and exit
-sleep 1.5
+COUNT=6
+while [ $COUNT -gt 0 ]; do
+  let COUNT=COUNT-1
+  xterm_set_title "xterm | ${USER} @ $(hostname) | Exiting in $COUNT.."
+  echo -ne                                "\rExiting in ${MAG}$COUNT${OFF}.."
+  sleep 0.5
+done
+
+echo " <disconnect>"
 
 
 # -- End of File  ------------------------------------------------------------

@@ -122,6 +122,7 @@ function set_prompt()
     # Count number of files in the current directory
     local files=$(ls -A | wc -l | tr -d '[:space:]')
 
+
     # Fetch total size of current directory
     #  - unsupported on SunOS
     if [[ `uname -s` == "SunOS" ]]; then
@@ -129,6 +130,12 @@ function set_prompt()
     else
       local total_size=$(ls -lah | grep -m 1 total | sed 's/total //')
     fi
+
+    # Format PWD
+    local unformatted_cwd=$(dirs +0)
+    local formatted_cwd="${TC_GRN}"
+    local formatted_cwd+=${unformatted_cwd//'/'/${TC_MAG}'/'${TC_GRN}}${TC_OFF}
+
 
     # Fetch git information
     local git_info=$(__git_ps1)
@@ -143,15 +150,17 @@ function set_prompt()
         local exit_status_color=${red}
     fi
 
+
     # PS0: Displayed after each command, but before any output
     #       - set to empty string
     PS0=''
+
 
     # PS1: Primary prompt displayed before each command
     #       - multi-line prompt with folder & git info
     PS1="\n[$(font ${fg} ${yellow})${user}$(font) @ $(font ${fg} ${yellow})${host}$(font)]"
     PS1+="  [$(font ${fg} ${cyan})${cwd}$(font) | ${files} files, ${total_size}]"
-    PS1+="  [$(font ${fg} ${green})${pwd}${git_info}$(font)]"
+    PS1+="  [${formatted_cwd}${git_info}]"
     PS1+="\n[$(font)${date} ${time}$(font)]"
     PS1+="$(font ${fg} ${exit_status_color})"
     PS1+=$' \xC2\xBB '
@@ -159,11 +168,26 @@ function set_prompt()
 
 #    PS1="\n\[\e(0\]lqq\[\e(B\][$(font ${fg} ${yellow})${user}$(font) @ $(font ${fg} ${yellow})${host}$(font)]"
 #    PS1+="  [$(font ${fg} ${cyan})${cwd}$(font) ${files} files, ${total_size}]"
-#    PS1+="  [$(font ${fg} ${green})${pwd}${git_info}$(font)]"
+#    PS1+="  [${formatted_cwd}${git_info}]"
 #    PS1+="\n\[\e(0\]mq\[\e(B\][$(font ${fg} ${orange})${date} ${time}$(font)]"
 #    PS1+="$(font ${fg} ${exit_status_color})"
 #    PS1+=$' \xC2\xBB '
 #    PS1+="$(font)"
+
+
+    # If xterm, set the window title to custom value
+    #
+    #  - Note:  Using the PS1 prompt to update the xterm title is
+    #           useful for dynamic information changes (such as
+    #           current directory or timestamps)
+    #
+    case "$TERM" in
+    xterm*|rxvt*)
+        PS1="\[\033]0;xterm | \u @ \h\007\]${PS1}"
+        ;;
+    *)
+        ;;
+    esac
 
 
     # PS2: Secondary prompt displayed when a command needs more input
