@@ -55,9 +55,17 @@ alias  s='source ~/.bashrc'
 alias  h='history'
 alias hs='history | grep'
 
-# GVIM shortcuts
-alias    e='gvim'
-alias edit='gvim'
+# VIM/GVIM shortcuts
+if command -v gvim > /dev/null; then
+  alias    e='gvim'
+  alias edit='gvim'
+elif command -v vim > /dev/null; then
+  alias    e='vim'
+  alias edit='vim'
+else
+  alias    e='vi'
+  alias edit='vi'
+fi
 
 # Force 'less' to interpret terminal color codes by default
 alias less='less -R'
@@ -65,7 +73,7 @@ alias less='less -R'
 # Show just my running processes
 alias psme="ps -aef | grep ${USER}"
 
-# Type "please" to add sudo to your previous command
+# Type "please" to re-run your previous command under 'sudo'
 alias please='sudo $(fc -ln -1)'
 
 # Launch Web Browser (w/ params):  Mozilla Firefox
@@ -102,8 +110,8 @@ fi
 alias ssh='xterm_invoke_ssh'
 alias  su='xterm_invoke_su'
 
-# Display the contents of PATH varaible (line-by-line)
-alias display-path='echo $PATH | tr : "\n"'
+# Display the contents of PATH variable (line-by-line)
+alias display-path='echo "" ; echo $PATH | tr : "\n" ; echo ""'
 
 # Gather system hardware specs and dump them to a local HTML file
 alias dump-hw-specs='sudo lshw -html > ./hardware_specs.html; echo "Created file => ./hardware_specs.html"'
@@ -114,6 +122,9 @@ alias  x1='xterm_with_color "red"'
 alias  x2='xterm_with_color "blue"'
 alias  x3='xterm_with_color "green"'
 alias  xc='xterm_with_color'
+
+# watch
+alias watch='watch --color'
 
 
 # -- Source GIT aliases ------------------------------------------------------
