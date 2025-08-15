@@ -129,8 +129,13 @@ fi
 
 
 # -- Merge ~/.Xresources -----------------------------------------------------
-if [ -f $HOME/.Xresources ] ; then
-  xrdb -merge $HOME/.Xresources
+if [[ -z $XRESOURCES_MERGED ]] ; then
+  if [ -f $HOME/.Xresources ] ; then
+    if command -v xrdb > /dev/null; then
+      xrdb -merge $HOME/.Xresources
+      export XRESOURCES_MERGED=TRUE
+    fi
+  fi
 fi
 
 
@@ -159,10 +164,19 @@ printf(((NR==1)?"":":")$0)}}')";
 export PATH
 
 
-# -- Finally, display login greeting -----------------------------------------
+# -- Display login greeting --------------------------------------------------
 if [ -f  ${LOCAL_BASH_PATH}/.bash_config_files/.bash_greeting ]; then
   source ${LOCAL_BASH_PATH}/.bash_config_files/.bash_greeting
   display_greeting
+fi
+
+
+# -- Finally, run any pre-defined command (useful for xterm spawns) ----------
+if [[ ${INITIAL_CMD} ]] ; then
+  echo -e "${TC_CYN}Running initial command${TC_OFF}: '${INITIAL_CMD}'.."
+  echo -e ""
+  ${INITIAL_CMD}
+  unset INITIAL_CMD
 fi
 
 
