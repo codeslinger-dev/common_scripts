@@ -14,17 +14,45 @@
 # ----------------------------------------------------------------------------
 #  PUBLIC CONSTANTS:  ANSI Terminal color codes (8/16 colors)
 # ----------------------------------------------------------------------------
-export TC_BLK='\033[0;30m'
-export TC_GRY='\033[0;37m'
-export TC_DRK='\033[0;90m'
-export TC_RED='\033[0;91m'
-export TC_GRN='\033[0;92m'
-export TC_YEL='\033[0;93m'
-export TC_BLU='\033[0;94m'
-export TC_MAG='\033[0;95m'
-export TC_CYN='\033[0;96m'
-export TC_WHT='\033[0;97m'
-export TC_OFF='\033[0m'
+
+# OCTAL [default] (useful for most BASH processing)
+export  TC_BLK='\033[0;30m'
+export  TC_GRY='\033[0;37m'
+export  TC_DRK='\033[0;90m'
+export  TC_RED='\033[0;91m'
+export  TC_GRN='\033[0;92m'
+export  TC_YEL='\033[0;93m'
+export  TC_BLU='\033[0;94m'
+export  TC_MAG='\033[0;95m'
+export  TC_CYN='\033[0;96m'
+export  TC_WHT='\033[0;97m'
+export  TC_OFF='\033[0m'
+
+# HEXIDECIMAL (useful for 'sed' commands)
+export xTC_BLK='\x1b[0;30m'
+export xTC_GRY='\x1b[0;37m'
+export xTC_DRK='\x1b[0;90m'
+export xTC_RED='\x1b[0;91m'
+export xTC_GRN='\x1b[0;92m'
+export xTC_YEL='\x1b[0;93m'
+export xTC_BLU='\x1b[0;94m'
+export xTC_MAG='\x1b[0;95m'
+export xTC_CYN='\x1b[0;96m'
+export xTC_WHT='\x1b[0;97m'
+export xTC_OFF='\x1b[0m'
+
+# BINARY (for completeness)
+export bTC_BLK='\u001b[0;30m'
+export bTC_GRY='\u001b[0;37m'
+export bTC_DRK='\u001b[0;90m'
+export bTC_RED='\u001b[0;91m'
+export bTC_GRN='\u001b[0;92m'
+export bTC_YEL='\u001b[0;93m'
+export bTC_BLU='\u001b[0;94m'
+export bTC_MAG='\u001b[0;95m'
+export bTC_CYN='\u001b[0;96m'
+export bTC_WHT='\u001b[0;97m'
+export bTC_OFF='\u001b[0m'
 
 
 # ----------------------------------------------------------------------------
@@ -97,6 +125,7 @@ function confirm_choice()
     done
 
 } # confirm_choice()
+export -f confirm_choice
 
 
 # ----------------------------------------------------------------------------
@@ -120,12 +149,19 @@ function find_command_location()
     fi
 
 } # find_command_location()
+export -f find_command_location
 
 
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: xterm_with_color
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Spawn an xterm with the provided color highlights
+#
+#                  -ls :  Login shell          [ XTerm*loginshell   ]
+#                  -bd :  Border color         [ XTerm*borderColor  ]
+#                  -ms :  Cursor color (mouse) [ XTerm*pointerColor ]
+#                  -cr :  Cursor color (text)  [ XTerm*cursorColor  ]
+#                  -rw :  Reverse wraparound   [ XTerm*reverseWrap  ]
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $1 = Color to use for highlights (default: magenta)
 # ----------------------------------------------------------------------------
@@ -138,7 +174,6 @@ function xterm_with_color()
     fi
 
     xterm -ls                 \
-          -sl 9182            \
           -bd ${hl_color}     \
           -ms ${hl_color}     \
           -cr ${hl_color}     \
@@ -146,6 +181,7 @@ function xterm_with_color()
           -title "[xterm]:" &
 
 } # xterm_with_color()
+export -f xterm_with_color
 
 
 # ----------------------------------------------------------------------------
@@ -166,6 +202,7 @@ function xterm_set_title()
     esac
 
 } # xterm_set_title()
+export -f xterm_set_title
 
 
 # ----------------------------------------------------------------------------
@@ -183,6 +220,7 @@ function xterm_invoke_ssh()
    \ssh ${ssh_params}
 
 } # xterm_invoke_ssh()
+export -f xterm_invoke_ssh
 
 
 # ----------------------------------------------------------------------------
@@ -200,6 +238,7 @@ function xterm_invoke_su()
    \su ${su_params}
 
 } # xterm_invoke_su()
+export -f xterm_invoke_su
 
 
 # ----------------------------------------------------------------------------
@@ -267,6 +306,7 @@ function print_rainbow_line()
   fi
 
 } # print_rainbow_line()
+export -f print_rainbow_line
 
 
 # ----------------------------------------------------------------------------
@@ -312,13 +352,14 @@ function print_ansi_colors()
     echo ""
 
 } # print_ansi_colors()
+export -f print_ansi_colors
 
 
 # ----------------------------------------------------------------------------
 #  FUNCTION NAME: log_get_current_timestamp
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Prints the current timestamp, for use with the logging
-#                 function defined below
+#                 functions defined below
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
@@ -327,16 +368,17 @@ function log_get_current_timestamp()
     local time_now=$(date +"%Y-%m-%d %H:%M:%S")
     echo "${time_now}"
 }
+export -f log_get_current_timestamp
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: log_error / log_warn / log_info / log_debug
+#  FUNCTION NAME: log_error / log_warn / log_info / log_debug / log_na
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Prints the provided log message to stderr, pre-pending
 #                 it with timestamp and color-coded [<LOG-TYPE>]
 #
 #                 Usage:  log_error "This is an error msg"
-#                 Result: 2023-06-14 21:24:23 [ERROR] This is an error msg
+#                 Result: 1970-01-01 23:59:59 [ERROR] This is an error msg
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $1 = Message to print
 # ----------------------------------------------------------------------------
@@ -345,24 +387,69 @@ function log_error()
     local time_now=$(log_get_current_timestamp)
     echo -e "${TC_DRK}${time_now}${TC_OFF} [${TC_RED}ERROR${TC_OFF}] ${1}" >&2
 } # log_error()
+export -f log_error
 
 function log_warn()
 {
     local time_now=$(log_get_current_timestamp)
     echo -e "${TC_DRK}${time_now}${TC_OFF} [${TC_YEL} WARN${TC_OFF}] ${1}" >&2
 } # log_warn()
+export -f log_warn
 
 function log_info()
 {
     local time_now=$(log_get_current_timestamp)
     echo -e "${TC_DRK}${time_now}${TC_OFF} [${TC_MAG} INFO${TC_OFF}] ${1}" >&2
 } # log_info()
+export -f log_info
 
 function log_debug()
 {
     local time_now=$(log_get_current_timestamp)
     echo -e "${TC_DRK}${time_now}${TC_OFF} [${TC_GRN}DEBUG${TC_OFF}] ${1}" >&2
 } # log_debug()
+export -f log_debug
+
+function log_na()
+{
+    local time_now=$(log_get_current_timestamp)
+    echo -e "${TC_DRK}${time_now}${TC_OFF} [ --- ] ${1}" >&2
+} # log_na()
+export -f log_na
+
+function log_echo()
+{
+    echo -e "${1}" >&2
+} # log_echo()
+export -f log_echo
+
+
+function log_test_all()
+{
+    echo -e ""
+
+    log_error "log_error:  time is $(log_get_current_timestamp)"
+    sleep 0.1
+
+    log_warn  "log_warn:   time is $(log_get_current_timestamp)"
+    sleep 0.1
+
+    log_info  "log_info:   time is $(log_get_current_timestamp)"
+    sleep 0.1
+
+    log_debug "log_debug:  time is $(log_get_current_timestamp)"
+    sleep 0.1
+
+    log_na    "log_na:     time is $(log_get_current_timestamp)"
+    sleep 0.1
+
+    log_echo  "log_echo:   time is $(log_get_current_timestamp)"
+    sleep 0.1
+
+    echo -e ""
+
+} # log_test_all()
+export -f log_test_all
 
 
 # -- File has been sourced ---------------------------------------------------
