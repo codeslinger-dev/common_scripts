@@ -27,6 +27,7 @@ backup_folder_name="${homedir}/DOTFILE_BACKUPS/${user}_config_files_${timestamp}
 
 # -- Color scheme ------------------------------------------------------------
 #
+col_gry='\033[0;37m'
 col_red='\033[0;91m'
 col_grn='\033[0;92m'
 col_yel='\033[0;93m'
@@ -65,10 +66,40 @@ function finish_failed {
 trap '[ "$?" -eq 0 ] || finish_failed'  EXIT
 
 
+function display_banner_file {
+
+  if [[ "$(type -t colorize_gradient)" == "function" ]]; then
+
+    cat ./_resources/banner_05.txt | colorize_gradient
+
+  else
+
+    while IFS= read -r -n 1 -d '' c
+    do
+      printf '\033[0;%dm%s\e[0m' "$((RANDOM%6+91))" "$c"; 
+    done < ./_resources/banner_05.txt
+
+  fi
+}
+
+
+function display_banner {
+
+  echo ""
+  echo -e "${col_yel}Installing..${col_off}"
+
+  display_banner_file
+
+  echo ""
+}
+
 
 # -- Begin Processing  -------------------------------------------------------
 #
 echo ""
+display_banner
+echo ""
+
 echo -e "${col_cyn}-------------------------------------------------------------------${col_off}"
 echo -e "${col_yel} Replacing [USER=${col_mag}${user}${col_yel}]'s config files..${col_off}"
 echo -e "${col_cyn}-------------------------------------------------------------------${col_off}"

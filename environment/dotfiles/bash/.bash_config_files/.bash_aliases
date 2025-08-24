@@ -55,9 +55,17 @@ alias  s='source ~/.bashrc'
 alias  h='history'
 alias hs='history | grep'
 
-# GVIM shortcuts
-alias    e='gvim'
-alias edit='gvim'
+# VIM/GVIM shortcuts
+if command -v gvim > /dev/null; then
+  alias    e='gvim'
+  alias edit='gvim'
+elif command -v vim > /dev/null; then
+  alias    e='vim'
+  alias edit='vim'
+else
+  alias    e='vi'
+  alias edit='vi'
+fi
 
 # Force 'less' to interpret terminal color codes by default
 alias less='less -R'
@@ -65,7 +73,7 @@ alias less='less -R'
 # Show just my running processes
 alias psme="ps -aef | grep ${USER}"
 
-# Type "please" to add sudo to your previous command
+# Type "please" to re-run your previous command under 'sudo'
 alias please='sudo $(fc -ln -1)'
 
 # Launch Web Browser (w/ params):  Mozilla Firefox
@@ -79,6 +87,13 @@ alias chrome='function _chrome()
 {
   google-chrome "$@" &> /dev/null &
 }; _chrome'
+
+# Launch Application (w/ params):  Spyder (Python IDE)
+alias spyder='function _spyder()
+{
+  \spyder "$@" &> /dev/null &
+}; _spyder'
+
 
 # Search aliases (defined in .bash_functions)
 alias   f='func_find'
@@ -98,15 +113,22 @@ if type 'colordiff' &> /dev/null; then
   alias diff='colordiff'
 fi
 
+# tail (display all of file + monitor for updates)
+alias tailf='tail -n +1 -f'
+
 # Modify the xterm title prior to running ssh or su
 alias ssh='xterm_invoke_ssh'
 alias  su='xterm_invoke_su'
 
-# Display the contents of PATH varaible (line-by-line)
-alias display-path='echo $PATH | tr : "\n"'
+# Display the contents of PATH variable (line-by-line)
+alias display-path='echo "" ; echo $PATH | tr : "\n" ; echo ""'
 
 # Gather system hardware specs and dump them to a local HTML file
 alias dump-hw-specs='sudo lshw -html > ./hardware_specs.html; echo "Created file => ./hardware_specs.html"'
+
+# Have GCC dump its PreProcessor macros and settings
+alias gcc_show_defines='echo | gcc -dM -E -'
+alias gcc_show_native_defines='echo | gcc -dM -march=native -E -'
 
 # xterm
 alias   x='xterm_with_color "white"'
@@ -114,6 +136,9 @@ alias  x1='xterm_with_color "red"'
 alias  x2='xterm_with_color "blue"'
 alias  x3='xterm_with_color "green"'
 alias  xc='xterm_with_color'
+
+# watch
+alias watch='watch --color'
 
 
 # -- Source GIT aliases ------------------------------------------------------

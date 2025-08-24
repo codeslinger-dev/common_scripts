@@ -14,17 +14,45 @@
 # ----------------------------------------------------------------------------
 #  PUBLIC CONSTANTS:  ANSI Terminal color codes (8/16 colors)
 # ----------------------------------------------------------------------------
-export TC_BLK='\033[0;30m'
-export TC_GRY='\033[0;37m'
-export TC_DRK='\033[0;90m'
-export TC_RED='\033[0;91m'
-export TC_GRN='\033[0;92m'
-export TC_YEL='\033[0;93m'
-export TC_BLU='\033[0;94m'
-export TC_MAG='\033[0;95m'
-export TC_CYN='\033[0;96m'
-export TC_WHT='\033[0;97m'
-export TC_OFF='\033[0m'
+
+# OCTAL [default] (useful for most BASH processing)
+export  TC_BLK='\033[0;30m'
+export  TC_GRY='\033[0;37m'
+export  TC_DRK='\033[0;90m'
+export  TC_RED='\033[0;91m'
+export  TC_GRN='\033[0;92m'
+export  TC_YEL='\033[0;93m'
+export  TC_BLU='\033[0;94m'
+export  TC_MAG='\033[0;95m'
+export  TC_CYN='\033[0;96m'
+export  TC_WHT='\033[0;97m'
+export  TC_OFF='\033[0m'
+
+# HEXIDECIMAL (useful for 'sed' commands)
+export xTC_BLK='\x1b[0;30m'
+export xTC_GRY='\x1b[0;37m'
+export xTC_DRK='\x1b[0;90m'
+export xTC_RED='\x1b[0;91m'
+export xTC_GRN='\x1b[0;92m'
+export xTC_YEL='\x1b[0;93m'
+export xTC_BLU='\x1b[0;94m'
+export xTC_MAG='\x1b[0;95m'
+export xTC_CYN='\x1b[0;96m'
+export xTC_WHT='\x1b[0;97m'
+export xTC_OFF='\x1b[0m'
+
+# BINARY (for completeness)
+export bTC_BLK='\u001b[0;30m'
+export bTC_GRY='\u001b[0;37m'
+export bTC_DRK='\u001b[0;90m'
+export bTC_RED='\u001b[0;91m'
+export bTC_GRN='\u001b[0;92m'
+export bTC_YEL='\u001b[0;93m'
+export bTC_BLU='\u001b[0;94m'
+export bTC_MAG='\u001b[0;95m'
+export bTC_CYN='\u001b[0;96m'
+export bTC_WHT='\u001b[0;97m'
+export bTC_OFF='\u001b[0m'
 
 
 # ----------------------------------------------------------------------------
@@ -100,6 +128,210 @@ function confirm_choice()
 
 
 # ----------------------------------------------------------------------------
+#  FUNCTION NAME: colorize
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Pipe input to this function to randomly
+#                 colorize every character (8 colors)
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : na
+# ----------------------------------------------------------------------------
+function colorize()
+{
+    while IFS= read -r -n 1 -d '' c ; do
+        color=$((RANDOM % 8 + 90))
+        printf '\033[0;%dm%s\e[0m' "$color" "$c"
+    done
+
+} # colorize()
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: colorize_256
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Pipe input to this function to randomly
+#                 colorize every character (256 colors)
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : na
+# ----------------------------------------------------------------------------
+function colorize_256()
+{
+    while IFS= read -r -n 1 -d '' c ; do
+        color=$((RANDOM % 256))
+        printf '\033[38;5;%dm%s\033[0m' "$color" "$c"
+    done
+
+} # colorize_256()
+
+
+# ----------------------------------------------------------------------------
+#  FUNCTION NAME: colorize_gradient
+# ----------------------------------------------------------------------------
+#  DESCRIPTION  : Pipe input to this function to apply a wave-like gradient
+#                 of color to each line.  Optionally highlight a provided
+#                 string.
+#
+#                 Example usage, colorizing a log file and highlighting
+#                 every occurance of the string "ERROR" in the file:
+#
+#                    tail -n +1 -f logfile.txt | colorize_gradient "ERROR"
+#
+#                 With multiple strings to highlight in multipel colors:
+#
+#                    tail -f file.txt | colorize_gradient                \
+#                                         "ERROR"                        \
+#                                         --color "WARN"         yellow  \
+#                                         --color "Job complete" green
+#
+# ----------------------------------------------------------------------------
+#  PARAMETERS   : $1 = <optional>  Provde a string to HIGHLIGHT if found
+# ----------------------------------------------------------------------------
+function colorize_gradient()
+{
+    local width=$(tput cols)
+    declare -A highlight_map=()    # keyword -> background ANSI 256 code
+
+    # Map of named colors to ANSI 256 codes
+    declare -A color_codes=(
+        [red]=196 [green]=46 [yellow]=226 [blue]=21
+        [magenta]=201 [cyan]=51 [white]=231 [black]=16
+    )
+
+    local pre_color_args=()
+    local post_color_args=()
+    local in_post_color=0
+
+    # Split arguments at --color
+    for arg in "$@"; do
+        if [[ "$arg" == "--color" ]]; then
+            in_post_color=1
+            continue
+        fi
+        if (( in_post_color )); then
+            post_color_args+=("$arg")
+        else
+            pre_color_args+=("$arg")
+        fi
+    done
+
+    # Default highlights: RED background
+    for kw in "${pre_color_args[@]}"; do
+        highlight_map["$kw"]=196
+    done
+
+    # Custom highlights after --color
+    local i=0
+    while (( i < ${#post_color_args[@]} )); do
+        local kw="${post_color_args[i]}"
+        ((i++))
+        local bg="${post_color_args[i]:-196}"  # default RED
+        ((i++))
+        if [[ "$bg" =~ ^[0-9]{1,3}$ ]] && (( bg >=0 && bg <=255 )); then
+            highlight_map["$kw"]="$bg"
+        else
+            highlight_map["$kw"]="${color_codes[$bg]:-196}"
+        fi
+    done
+
+    # Auto-contrast text
+    function best_text_color() {
+        local bg=$1
+        local r g b
+        r=$(( ((bg-16)/36)*51 ))
+        g=$(( (((bg-16)%36)/6)*51 ))
+        b=$(( ((bg-16)%6)*51 ))
+        local lum=$(( (299*r + 587*g + 114*b)/1000 ))
+        if (( lum > 128 )); then
+            echo 30   # black
+        else
+            echo 37   # white
+        fi
+    }
+
+    # Precompute rainbow gradient for terminal width
+    local gradient=()
+    local color_escape=()
+    for ((x=0; x<width; x++)); do
+        local hue=$(( (x * 300) / (width - 1) ))
+        local r g b
+        if   ((hue <  60)); then r=5; g=$((hue * 5 / 60)); b=0
+        elif ((hue < 120)); then r=$((5 - (hue - 60) * 5 / 60)); g=5; b=0
+        elif ((hue < 180)); then r=0; g=5; b=$(((hue - 120) * 5 / 60))
+        elif ((hue < 240)); then r=0; g=$((5 - (hue - 180) * 5 / 60)); b=5
+        elif ((hue < 300)); then r=$(((hue - 240) * 5 / 60)); g=0; b=5
+        else r=5; g=0; b=5
+        fi
+        gradient[x]=$((16 + r*36 + g*6 + b))
+        color_escape[x]=$'\033[38;5;'${gradient[x]}'m'
+    done
+
+    # Process lines
+    local line_offset=0
+    local line
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        local output=""
+        local i=0
+
+        while ((i < ${#line})); do
+            local matched=0
+
+            # Highlight keywords
+            for kw in "${!highlight_map[@]}"; do
+                local len=${#kw}
+                if [[ "${line:i:len}" == "$kw" ]]; then
+                    local bg_code=${highlight_map[$kw]}
+                    local fg_code=$(best_text_color $bg_code)
+                    output+=$'\033['${fg_code}';48;5;'${bg_code}'m'"${line:i:len}"$'\033[0m'
+                    ((i+=len))
+                    matched=1
+                    break
+                fi
+            done
+
+            if ((matched)); then
+                continue
+            fi
+
+            # Rainbow gradient for non-highlight text
+            local char="${line:i:1}"
+            local idx=$(( (i - line_offset + width) % width ))
+            local color_seq="${color_escape[idx]}"
+
+            # Group consecutive same-color chars until next keyword
+            local segment="$char"
+            local j=$((i+1))
+            while (( j < ${#line} )); do
+                local found=0
+                for kw in "${!highlight_map[@]}"; do
+                    local len=${#kw}
+                    if [[ "${line:j:len}" == "$kw" ]]; then
+                        found=1
+                        break
+                    fi
+                done
+                if ((found)); then
+                    break
+                fi
+                local next_idx=$(( (j - line_offset + width) % width ))
+                local next_color="${color_escape[next_idx]}"
+                if [[ "$next_color" != "$color_seq" ]]; then
+                    break
+                fi
+                segment+="${line:j:1}"
+                ((j++))
+            done
+
+            output+="${color_seq}${segment}"
+            ((i+=${#segment}))
+        done
+
+        printf "%s\033[0m\n" "$output"
+        ((line_offset++))
+    done
+
+} # colorize_gradient()
+
+
+# ----------------------------------------------------------------------------
 #  FUNCTION NAME: find_command_location
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Find the source location of a command
@@ -126,6 +358,12 @@ function find_command_location()
 #  FUNCTION NAME: xterm_with_color
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Spawn an xterm with the provided color highlights
+#
+#                  -ls :  Login shell          [ XTerm*loginshell   ]
+#                  -bd :  Border color         [ XTerm*borderColor  ]
+#                  -ms :  Cursor color (mouse) [ XTerm*pointerColor ]
+#                  -cr :  Cursor color (text)  [ XTerm*cursorColor  ]
+#                  -rw :  Reverse wraparound   [ XTerm*reverseWrap  ]
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $1 = Color to use for highlights (default: magenta)
 # ----------------------------------------------------------------------------
@@ -138,7 +376,6 @@ function xterm_with_color()
     fi
 
     xterm -ls                 \
-          -sl 9182            \
           -bd ${hl_color}     \
           -ms ${hl_color}     \
           -cr ${hl_color}     \
@@ -318,7 +555,7 @@ function print_ansi_colors()
 #  FUNCTION NAME: log_get_current_timestamp
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Prints the current timestamp, for use with the logging
-#                 function defined below
+#                 functions defined below
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : na
 # ----------------------------------------------------------------------------
@@ -330,39 +567,113 @@ function log_get_current_timestamp()
 
 
 # ----------------------------------------------------------------------------
-#  FUNCTION NAME: log_error / log_warn / log_info / log_debug
+#  FUNCTION NAME: log_error / log_warn / log_info / log_debug / log_na
 # ----------------------------------------------------------------------------
 #  DESCRIPTION  : Prints the provided log message to stderr, pre-pending
 #                 it with timestamp and color-coded [<LOG-TYPE>]
 #
 #                 Usage:  log_error "This is an error msg"
-#                 Result: 2023-06-14 21:24:23 [ERROR] This is an error msg
+#                 Result: 1970-01-01 23:59:59 [ERROR] This is an error msg
+#
+#                 Can be disabled by defining "DISABLE_LOG_LEVEL_<name>"
 # ----------------------------------------------------------------------------
 #  PARAMETERS   : $1 = Message to print
 # ----------------------------------------------------------------------------
 function log_error()
 {
-    local time_now=$(log_get_current_timestamp)
-    echo -e "${TC_DRK}${time_now}${TC_OFF} [${TC_RED}ERROR${TC_OFF}] ${1}" >&2
+    if [[ -z $DISABLE_LOG_LEVEL_ERROR ]]; then
+      local time_now=$(log_get_current_timestamp)
+      echo -e "${TC_DRK}${time_now}${TC_OFF} [${TC_RED}ERROR${TC_OFF}] ${1}" >&2
+    fi
 } # log_error()
 
 function log_warn()
 {
-    local time_now=$(log_get_current_timestamp)
-    echo -e "${TC_DRK}${time_now}${TC_OFF} [${TC_YEL} WARN${TC_OFF}] ${1}" >&2
+    if [[ -z $DISABLE_LOG_LEVEL_WARN ]]; then
+      local time_now=$(log_get_current_timestamp)
+      echo -e "${TC_DRK}${time_now}${TC_OFF} [${TC_YEL} WARN${TC_OFF}] ${1}" >&2
+    fi
 } # log_warn()
 
 function log_info()
 {
-    local time_now=$(log_get_current_timestamp)
-    echo -e "${TC_DRK}${time_now}${TC_OFF} [${TC_MAG} INFO${TC_OFF}] ${1}" >&2
+    if [[ -z $DISABLE_LOG_LEVEL_INFO ]]; then
+      local time_now=$(log_get_current_timestamp)
+      echo -e "${TC_DRK}${time_now}${TC_OFF} [${TC_MAG} INFO${TC_OFF}] ${1}" >&2
+    fi
 } # log_info()
 
 function log_debug()
 {
-    local time_now=$(log_get_current_timestamp)
-    echo -e "${TC_DRK}${time_now}${TC_OFF} [${TC_GRN}DEBUG${TC_OFF}] ${1}" >&2
+    if [[ -z $DISABLE_LOG_LEVEL_DEBUG ]]; then
+      local time_now=$(log_get_current_timestamp)
+      echo -e "${TC_DRK}${time_now}${TC_OFF} [${TC_GRN}DEBUG${TC_OFF}] ${1}" >&2
+    fi
 } # log_debug()
+
+function log_na()
+{
+    local time_now=$(log_get_current_timestamp)
+    echo -e "${TC_DRK}${time_now}${TC_OFF} [ --- ] ${1}" >&2
+} # log_na()
+
+function log_echo()
+{
+    echo -e "${1}" >&2
+} # log_echo()
+
+
+function log_test_all()
+{
+    echo -e ""
+
+    log_error "log_error:  time is $(log_get_current_timestamp)"
+    sleep 0.1
+
+    log_warn  "log_warn:   time is $(log_get_current_timestamp)"
+    sleep 0.1
+
+    log_info  "log_info:   time is $(log_get_current_timestamp)"
+    sleep 0.1
+
+    log_debug "log_debug:  time is $(log_get_current_timestamp)"
+    sleep 0.1
+
+    log_na    "log_na:     time is $(log_get_current_timestamp)"
+    sleep 0.1
+
+    log_echo  "log_echo:   time is $(log_get_current_timestamp)"
+    sleep 0.1
+
+    echo -e ""
+
+} # log_test_all()
+
+# ----------------------------------------------------------------------------
+#  EXPORT PUBLIC FUNCTIONS :  Allows these functions to be used in
+#                             non-interactive bash shell scripts
+# ----------------------------------------------------------------------------
+export -f confirm_choice
+export -f colorize
+export -f colorize_256
+export -f colorize_gradient
+export -f find_command_location
+export -f xterm_with_color
+export -f xterm_set_title
+export -f xterm_invoke_ssh
+export -f xterm_invoke_su
+export -f print_rainbow_line
+export -f print_ansi_colors
+export -f log_get_current_timestamp
+export -f log_error
+export -f log_warn
+export -f log_info
+export -f log_debug
+export -f log_na
+export -f log_echo
+export -f log_test_all
+
+
 
 
 # -- File has been sourced ---------------------------------------------------

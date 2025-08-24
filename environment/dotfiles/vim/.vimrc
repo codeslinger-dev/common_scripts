@@ -72,7 +72,7 @@ if has("gui_running")
 
   set guiheadroom=62            " -- resevre pixels for gui elements
 
-  set lines=999                 " -- set window height (max)
+  set lines=199                 " -- set window height (max)
   set columns=87                " -- set window width
 
   set nowrap                    " -- don't wrap long lines
@@ -113,6 +113,7 @@ set backspace=indent,eol,start  " -- allow backspace over everything (insert)
 
 " -- Setup (Visualize trailing spaces and tabs) ------------------------------
 set list
+let c_space_errors=1
 
 if version >=700
   set listchars=tab:>-,trail:-,nbsp:?

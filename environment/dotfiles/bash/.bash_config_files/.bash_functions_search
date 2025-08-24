@@ -102,10 +102,12 @@ function func_find()
     file_filter="$2"
   fi
 
+  echo -e " - grep -F -I -i -s -r -n --color=always --include=\"${file_filter}\" \"$1\""
+
   # Search
-  grep -F -I -s -r -n --color=always --include="${file_filter}" "$1" ./   \
-       | sed 's/.*/ &/'                                                   \
-       | sed 's/:/ +/'                                                    \
+  grep -F -I -i -s -r -n --color=always --include="${file_filter}" "$1" ./   \
+       | sed 's/.*/ &/'                                                      \
+       | sed 's/:/ +/'                                                       \
        | sed 's/:/ \xC2\xBB /'
 
 } # func_find()
@@ -139,10 +141,12 @@ function func_find_follow()
     file_filter="$2"
   fi
 
+  echo -e " - grep -F -I -i -s -R -n --color=always --include=\"${file_filter}\" \"$1\""
+
   # Search
-  grep -F -I -s -R -n --color=always --include="${file_filter}" "$1" ./   \
-       | sed 's/.*/ &/'                                                   \
-       | sed 's/:/ +/'                                                    \
+  grep -F -I -i -s -R -n --color=always --include="${file_filter}" "$1" ./   \
+       | sed 's/.*/ &/'                                                      \
+       | sed 's/:/ +/'                                                       \
        | sed 's/:/ \xC2\xBB /'
 
 } # func_find_follow()
