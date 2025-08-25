@@ -102,7 +102,7 @@ function confirm_choice()
     while true; do
 
         # Display the prompt
-        #  - intentially not using "read -p"
+        #  - intentionally not using "read -p"
         #    as it uses stderr not stdout
         echo -e -n "$question [$choice]: "
 
