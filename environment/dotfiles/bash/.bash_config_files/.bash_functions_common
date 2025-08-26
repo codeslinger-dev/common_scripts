@@ -102,7 +102,7 @@ function confirm_choice()
     while true; do
 
         # Display the prompt
-        #  - intentially not using "read -p"
+        #  - intentionally not using "read -p"
         #    as it uses stderr not stdout
         echo -e -n "$question [$choice]: "
 
@@ -329,6 +329,149 @@ function colorize_gradient()
     done
 
 } # colorize_gradient()
+
+
+colorize_gradient_v2() {
+    local width=$(tput cols)
+    declare -A highlight_map=()    # keyword -> background ANSI 256 code
+
+    # Map of named colors to ANSI 256 codes
+    declare -A color_codes=(
+        [red]=196 [green]=46 [yellow]=226 [blue]=21
+        [magenta]=201 [cyan]=51 [white]=231 [black]=16
+    )
+
+    local pre_color_args=()
+    local post_color_args=()
+    local in_post_color=0
+
+    # Split arguments at --color
+    for arg in "$@"; do
+        if [[ "$arg" == "--color" ]]; then
+            in_post_color=1
+            continue
+        fi
+        if (( in_post_color )); then
+            post_color_args+=("$arg")
+        else
+            pre_color_args+=("$arg")
+        fi
+    done
+
+    # Default highlights: RED background
+    for kw in "${pre_color_args[@]}"; do
+        highlight_map["$kw"]=196
+    done
+
+    # Custom highlights after --color
+    local i=0
+    while (( i < ${#post_color_args[@]} )); do
+        local kw="${post_color_args[i]}"
+        ((i++))
+        local bg="${post_color_args[i]:-196}"  # default RED
+        ((i++))
+        if [[ "$bg" =~ ^[0-9]{1,3}$ ]] && (( bg >=0 && bg <=255 )); then
+            highlight_map["$kw"]="$bg"
+        else
+            highlight_map["$kw"]="${color_codes[$bg]:-196}"
+        fi
+    done
+
+    # Create a LUT for auto-contrasting text colors
+    declare -a best_text_contrast_colors
+    for code in {16..255}; do
+        r=$(( ((code-16)/36)*51 ))
+        g=$(( (((code-16)%36)/6)*51 ))
+        b=$(( ((code-16)%6)*51 ))
+        lum=$(( (299*r + 587*g + 114*b)/1000 ))
+        if (( lum > 128 )); then
+            best_text_contrast_colors[$code]=30   # black
+        else
+            best_text_contrast_colors[$code]=37   # white
+        fi
+    done
+
+    # Precompute rainbow gradient for terminal width
+    local gradient=()
+    local color_escape=()
+    for ((x=0; x<width; x++)); do
+        local hue=$(( (x * 300) / (width - 1) ))
+        local r g b
+        if   ((hue <  60)); then r=5; g=$((hue * 5 / 60)); b=0
+        elif ((hue < 120)); then r=$((5 - (hue - 60) * 5 / 60)); g=5; b=0
+        elif ((hue < 180)); then r=0; g=5; b=$(((hue - 120) * 5 / 60))
+        elif ((hue < 240)); then r=0; g=$((5 - (hue - 180) * 5 / 60)); b=5
+        elif ((hue < 300)); then r=$(((hue - 240) * 5 / 60)); g=0; b=5
+        else r=5; g=0; b=5
+        fi
+        gradient[x]=$((16 + r*36 + g*6 + b))
+        color_escape[x]=$'\033[38;5;'${gradient[x]}'m'
+    done
+
+    # Process lines
+    local line_offset=0
+    local line
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        local output=""
+        local i=0
+
+        while ((i < ${#line})); do
+            local matched=0
+
+            # Highlight keywords
+            for kw in "${!highlight_map[@]}"; do
+                if [[ "${line:i}" == "$kw"* ]]; then
+                    local len=${#kw}
+                    local bg_code=${highlight_map[$kw]}
+                    local fg_code=${best_text_contrast_colors[$bg_code]}
+                    output+=$'\033['${fg_code}';48;5;'${bg_code}'m'"${line:i:len}"$'\033[0m'
+                    ((i+=len))
+                    matched=1
+                    break
+                fi
+            done
+
+            if ((matched)); then
+                continue
+            fi
+
+            # Rainbow gradient for non-highlight text
+            local char="${line:i:1}"
+            local idx=$(( (i - line_offset + width) % width ))
+            local color_seq="${color_escape[idx]}"
+
+            # Group consecutive same-color chars until next keyword
+            local segment="$char"
+            local j=$((i+1))
+            while (( j < ${#line} )); do
+                local found=0
+                for kw in "${!highlight_map[@]}"; do
+                    local len=${#kw}
+                    if [[ "${line:j:len}" == "$kw" ]]; then
+                        found=1
+                        break
+                    fi
+                done
+                if ((found)); then
+                    break
+                fi
+                local next_idx=$(( (j - line_offset + width) % width ))
+                local next_color="${color_escape[next_idx]}"
+                if [[ "$next_color" != "$color_seq" ]]; then
+                    break
+                fi
+                segment+="${line:j:1}"
+                ((j++))
+            done
+
+            output+="${color_seq}${segment}"
+            ((i+=${#segment}))
+        done
+
+        printf "%s\033[0m\n" "$output"
+        ((line_offset++))
+    done
+}
 
 
 # ----------------------------------------------------------------------------
@@ -657,6 +800,7 @@ export -f confirm_choice
 export -f colorize
 export -f colorize_256
 export -f colorize_gradient
+export -f colorize_gradient_v2
 export -f find_command_location
 export -f xterm_with_color
 export -f xterm_set_title

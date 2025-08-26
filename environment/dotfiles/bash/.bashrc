@@ -25,11 +25,22 @@ LOCAL_BASH_PATH=~
 
 # -- History settings --------------------------------------------------------
 shopt -s histappend
-HISTSIZE=2000
+HISTSIZE=5000
 HISTFILESIZE=250000
 HISTCONTROL=ignoreboth
 HISTTIMEFORMAT="[ %F / %T ]  "
 
+ # --  Put multi-line commands into one history entry ------------------------
+shopt -s cmdhist
+
+# -- Correct small errors in directory names given to the `cd` buildtin ------
+shopt -s cdspell
+
+# -- Check that hashed commands still exist before running them --------------
+shopt -s checkhash
+
+# -- Expand aliases in shell scripts -----------------------------------------
+shopt -s expand_aliases
 
 # -- Update the values of LINES and COLUMNS after windows resize -------------
 shopt -s checkwinsize

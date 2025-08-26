@@ -131,16 +131,18 @@ function set_prompt()
       local total_size=$(ls -lah | grep -m 1 total | sed 's/total //')
     fi
 
-    # Format PWD
+    # Format CWD (change color of path separators)
     local unformatted_cwd=$(dirs +0)
     local formatted_cwd="${TC_GRN}"
-    local formatted_cwd+=${unformatted_cwd//'/'/${TC_MAG}'/'${TC_GRN}}${TC_OFF}
+    local formatted_cwd+=${unformatted_cwd//'/'/${TC_MAG}'/'${TC_GRN}}
+    local formatted_cwd+=${TC_MAG}'/'
+    local formatted_cwd+=${TC_OFF}
 
 
     # Fetch git information
     local git_info=$(__git_ps1)
     if [[ ${git_info} ]]; then
-        git_info="$(font ${fg} ${yellow})${git_info}$(font)"
+       git_info=" |$(font ${fg} ${yellow})${git_info}$(font)"
     fi
 
     # Check exit status of previously-executed command
@@ -157,7 +159,7 @@ function set_prompt()
 
 
     # PS1: Primary prompt displayed before each command
-    #       - multi-line prompt with folder & git info
+    #       - multi-line prompt with path & git info
     PS1="\n[$(font ${fg} ${yellow})${user}$(font) @ $(font ${fg} ${yellow})${host}$(font)]"
     PS1+="  [$(font ${fg} ${cyan})${cwd}$(font) | ${files} files, ${total_size}]"
     PS1+="  [${formatted_cwd}${git_info}]"
@@ -175,15 +177,22 @@ function set_prompt()
 #    PS1+="$(font)"
 
 
-    # If xterm, set the window title to custom value
+    # If xterm, inject a 'set window title' command in the prompt
     #
     #  - Note:  Using the PS1 prompt to update the xterm title is
     #           useful for dynamic information changes (such as
     #           current directory or timestamps)
     #
+    #           Xterm Title Esc Sequence Begin:  \033]0;
+    #           Xterm Title Esc Sequence   End:  \007
+    #
+    #             - The '[' and ']' characters indicate to
+    #               Bash to ignore everything in between
+    #
     case "$TERM" in
     xterm*|rxvt*)
-        PS1="\[\033]0;xterm | \u @ \h\007\]${PS1}"
+        # Title:  'xterm | <user> @ <host> | <cwd>'
+        PS1="\[ \033]0;xterm  |  \u @ \h  |  \w\007 \]${PS1}"
         ;;
     *)
         ;;
