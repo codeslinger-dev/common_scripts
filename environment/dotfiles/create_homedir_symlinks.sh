@@ -76,7 +76,7 @@ function display_banner_file {
 
     while IFS= read -r -n 1 -d '' c
     do
-      printf '\033[0;%dm%s\e[0m' "$((RANDOM%6+91))" "$c"; 
+      printf '\033[0;%dm%s\e[0m' "$((RANDOM % 7 + 91))" "$c"; 
     done < ./_resources/banner_05.txt
 
   fi

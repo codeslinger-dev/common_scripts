@@ -210,11 +210,10 @@ function set_prompt()
 
 
 # Git-prompt controls
-#GIT_PS1_SHOWUPSTREAM="auto"    # '<' behind, '>' ahead, '<>' diverged, '=' no difference
-GIT_PS1_SHOWUPSTREAM="verbose git"  # '<' behind, '>' ahead, '<>' diverged, '=' no difference
+GIT_PS1_SHOWUPSTREAM="git"      # '<' behind, '>' ahead, '<>' diverged, '=' no difference
 GIT_PS1_SHOWDIRTYSTATE=1       # staged '+', unstaged '*'
-GIT_PS1_SHOWSTASHSTATE=1       # '$' something is stashed
-GIT_PS1_SHOWUNTRACKEDFILES=1   # '%' untracked files
+GIT_PS1_SHOWSTASHSTATE=0       # '$' something is stashed
+GIT_PS1_SHOWUNTRACKEDFILES=0   # '%' untracked files
 
 PROMPT_COMMAND=set_prompt
 
